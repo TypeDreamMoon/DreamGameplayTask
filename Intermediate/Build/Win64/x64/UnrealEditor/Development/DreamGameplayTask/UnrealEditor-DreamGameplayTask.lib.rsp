@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-DreamGameplayTask.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"..\Intermediate\Build\Win64\x64\UnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.obj"
+"G:\UnrealProject_55_Mooa\PluginBuildProject\Plugins\DreamPlugins\DreamGameplayTask\Intermediate\Build\Win64\x64\UnrealEditor\Development\DreamGameplayTask\Module.DreamGameplayTask.cpp.obj"
+"..\Intermediate\Build\Win64\x64\UnrealEditor\Development\Default.rc2.res"
+/OUT:"G:\UnrealProject_55_Mooa\PluginBuildProject\Plugins\DreamPlugins\DreamGameplayTask\Intermediate\Build\Win64\x64\UnrealEditor\Development\DreamGameplayTask\UnrealEditor-DreamGameplayTask.lib"
