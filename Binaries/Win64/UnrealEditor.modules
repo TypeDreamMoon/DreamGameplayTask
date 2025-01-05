@@ -1,8 +1,0 @@
-{
-	"BuildId": "d8c00d82-3c07-418f-a158-c863d9fc2fa8",
-	"Modules": 
-	{
-		"DreamGameplayTask": "UnrealEditor-DreamGameplayTask.dll",
-		"DreamGameplayTaskEditor": "UnrealEditor-DreamGameplayTaskEditor.dll"
-	}
-}
