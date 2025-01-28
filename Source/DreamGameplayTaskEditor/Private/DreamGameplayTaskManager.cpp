@@ -145,11 +145,37 @@ void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 					.EnableAnimatedScrolling(true)
 					.OnGenerateRow(this, &SDreamGameplayTaskManager::OnGenerateRowForList)
 					.ListItemsSource(&List)
+					.HeaderRow(
+						SNew(SHeaderRow)
+						+ SHeaderRow::Column(TEXT("TaskName"))
+						.DefaultLabel(FText::FromString(TEXT("TaskName")))
+						.HAlignHeader(HAlign_Center)
+						.VAlignHeader(VAlign_Center)
+						.HAlignCell(HAlign_Left)
+						.VAlignCell(VAlign_Center)
+						+ SHeaderRow::Column(TEXT("BlueprintName"))
+						.DefaultLabel(FText::FromString(TEXT("BlueprintName")))
+						.HAlignHeader(HAlign_Center)
+						.VAlignHeader(VAlign_Center)
+						.HAlignCell(HAlign_Left)
+						.VAlignCell(VAlign_Center)
+						+ SHeaderRow::Column(TEXT("TaskDisplayName"))
+						.DefaultLabel(FText::FromString(TEXT("TaskDisplayName")))
+						.HAlignHeader(HAlign_Center)
+						.VAlignHeader(VAlign_Center)
+						.HAlignCell(HAlign_Left)
+						.VAlignCell(VAlign_Center)
+						+ SHeaderRow::Column(TEXT("OpenEditor"))
+						.DefaultLabel(FText::FromString(TEXT("TaskDisplayName")))
+						.HAlignHeader(HAlign_Center)
+						.VAlignHeader(VAlign_Center)
+						.HAlignCell(HAlign_Fill)
+						.VAlignCell(VAlign_Fill))
 				]
-
+				
 				+ SWidgetSwitcher::Slot()
-				.HAlign(SLATE_HCENTER)
-				.VAlign(SLATE_VCENTER)
+				.HAlign(SLATE_HFILL)
+				.VAlign(SLATE_VFILL)
 				[
 					SNew(SErrorText)
 					.Font(GetTextFont(20.0f))
@@ -210,16 +236,16 @@ void SDreamGameplayTaskManager::RefreshList()
 	ClearList();
 
 	FDreamGameplayTaskEditorTools::LoadAssetToMemory();
-	
+
 	TArray<FAssetData> AssetData = FDreamGameplayTaskEditorTools::GetTaskAssetData();
-	
+
 	for (auto Data : AssetData)
 	{
 		UBlueprint* Blueprint = Cast<UBlueprint>(Data.FastGetAsset(true));
 
 		if (!Blueprint) continue;
 		if (!Blueprint->ParentClass) continue;
-		
+
 		if (Blueprint->ParentClass->IsChildOf(UDreamTask::StaticClass()) || Blueprint->ParentClass == UDreamTask::StaticClass())
 		{
 			UDreamTask* Task = Cast<UDreamTask>(Blueprint->GeneratedClass.GetDefaultObject());
@@ -335,14 +361,14 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 
 	auto GetTask = [RowData]()
 	{
-		return RowData.Get()->Task;	
+		return RowData.Get()->Task;
 	};
 
 	auto TaskDisplayName = [GetTask]
 	{
 		return GetTask()->GetTaskDisplayName().ToString();
 	};
-	
+
 	auto GetBlueprint = [RowData]()
 	{
 		return RowData.Get()->Blueprint;
@@ -361,7 +387,7 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 		FString TaskType = GetTask()->GetTaskType() ? GetTask()->GetTaskType()->TypeName.ToString() : TEXT("Null");
 		FString NextTasks = TEXT("EMPTY");
 		FString ConditionsName = TEXT("EMPTY");
-		
+
 		{
 			// NEXT TASK
 			if (!GetTask()->GetSubTasks().IsEmpty())
@@ -388,7 +414,7 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 				}
 			}
 		}
-		
+
 		return FText::FromString(FString::Printf(TEXT(
 			"Task Name : %s \n"
 			"Task DisplayName : %s \n"
@@ -397,12 +423,12 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 			"Sub Tasks : %s \n"
 			"Conditons : %s"
 		),
-			*TaskName,
-			*TaskDisplayName,
-			*TaskDesc,
-			*TaskType,
-			*NextTasks,
-			*ConditionsName
+		                                         *TaskName,
+		                                         *TaskDisplayName,
+		                                         *TaskDesc,
+		                                         *TaskType,
+		                                         *NextTasks,
+		                                         *ConditionsName
 		));
 	};
 
@@ -430,7 +456,7 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 			[
 				// ROW LINE MAIN
 				SNew(SSplitter)
-				
+
 				// TODO : TASK NAME
 				+ SSplitter::Slot()
 				[

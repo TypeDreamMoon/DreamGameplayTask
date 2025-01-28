@@ -33,7 +33,7 @@ public:
 	FSlateFontInfo ManagerFont = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 12);
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
-	FName ManagerVersion = FName(TEXT("2.0.1"));
+	FName ManagerVersion = FName(TEXT("2.1.0"));
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
 	FName PluginVersion = FName(TEXT("2.0.1"));

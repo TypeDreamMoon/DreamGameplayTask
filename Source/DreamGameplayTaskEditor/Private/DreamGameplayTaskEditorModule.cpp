@@ -22,7 +22,7 @@ void FDreamGameplayTaskEditorModule::StartupModule()
 
 	RegisterCommand();
 	MakeCommandList();
-	RegisterToolbar();
+	RegisterMenu();
 }
 
 void FDreamGameplayTaskEditorModule::ShutdownModule()
@@ -47,15 +47,6 @@ void FDreamGameplayTaskEditorModule::RegisterCommand()
 		CommandList = MakeShareable(new FUICommandList);
 	}
 	FDreamGameplayTaskEditorCommands::Register();
-}
-
-void FDreamGameplayTaskEditorModule::RegisterToolbar()
-{
-	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-	TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
-	ToolbarExtender->AddToolBarExtension("Play", EExtensionHook::After, CommandList, FToolBarExtensionDelegate::CreateRaw(this, &FDreamGameplayTaskEditorModule::AddEditorToolsToToolbarExtension));
-	LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
-	LevelEditorModule.GetGlobalLevelEditorActions()->Append(CommandList.ToSharedRef());
 }
 
 void FDreamGameplayTaskEditorModule::MakeCommandList()
@@ -89,8 +80,8 @@ void FDreamGameplayTaskEditorModule::MakeCommandList()
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(GetTaskManagerName(),
 	                                                  FOnSpawnTab::CreateRaw(this, &FDreamGameplayTaskEditorModule::OnSpawnPluginTab))
-	                        .SetDisplayName(FText::FromString(TEXT("DreamTaskManager")))
-	                        .SetMenuType(ETabSpawnerMenuType::Disabled)
+	                        .SetDisplayName(FText::FromString(TEXT("TaskManager")))
+	                        .SetMenuType(ETabSpawnerMenuType::Hidden)
 	                        .SetIcon(FSlateIcon(
 		                        FSlateIcon(FDreamGameplayTaskEditorStyle::StyleName(),
 		                                   TEXT("DreamGameplayTaskEditor.DreamTaskManager.TabIcon"))));
@@ -102,18 +93,6 @@ void FDreamGameplayTaskEditorModule::MakeCommandList()
 				FGlobalTabmanager::Get()->TryInvokeTab(GetTaskManagerName());
 			}
 		));
-}
-
-void FDreamGameplayTaskEditorModule::AddEditorToolsToToolbarExtension(FToolBarBuilder& Builder)
-{
-	Builder.BeginSection("DreamGameplay");
-	Builder.AddComboButton(
-		FUIAction(),
-		FOnGetContent::CreateRaw(this, &FDreamGameplayTaskEditorModule::MakeEditorToolsMenu, true, true, true, true, true, true),
-		LOCTEXT("DreamGameplayTaskEditor", "DreamGameplayTools"),
-		LOCTEXT("DreamGameplayTaskEditor", "DreamGameplayTools"),
-		FSlateIcon(DREAMGAMEPLAY_TASK_STYLENAME, "Editor.Toolbar"));
-	Builder.EndSection();
 }
 
 TSharedRef<class SDockTab> FDreamGameplayTaskEditorModule::OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs)
@@ -132,19 +111,36 @@ FName FDreamGameplayTaskEditorModule::GetTaskManagerName()
 	return DreamGameplayTaskEditorManagerWindowName;
 }
 
-TSharedRef<SWidget> FDreamGameplayTaskEditorModule::MakeEditorToolsMenu(bool InitialSetup, bool ComponentAction, bool OpenWindow, bool PreviewInViewport, bool EditorCameraControl, bool Others)
+void FDreamGameplayTaskEditorModule::RegisterMenu()
 {
-	FMenuBuilder MenuBuilder(true, CommandList);
-	auto BufCommandList = FDreamGameplayTaskEditorCommands::Get();
-	MenuBuilder.BeginSection("TaskTools", LOCTEXT("DreamGameplayTaskEditor", "Task Tools"));
-	{
-		MenuBuilder.AddMenuEntry(BufCommandList.CreateTask);
-		MenuBuilder.AddMenuEntry(BufCommandList.CreateTaskType);
-		MenuBuilder.AddMenuEntry(BufCommandList.CreateCondition);
-		MenuBuilder.AddMenuEntry(BufCommandList.OpenManager);
-	}
+	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	TSharedPtr<FExtender> Extender = MakeShareable(new FExtender);
+	Extender->AddMenuExtension(
+		"Tools" /* Hook */,
+		EExtensionHook::After /* Hook Position */,
+		CommandList /* Commands */,
+		FMenuExtensionDelegate::CreateRaw(this, &FDreamGameplayTaskEditorModule::MakeMenu) /* Make Builder */);
 
-	return MenuBuilder.MakeWidget();
+	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(Extender);
+}
+
+void FDreamGameplayTaskEditorModule::MakeMenu(FMenuBuilder& MenuBuilder)
+{
+	auto Commands = FDreamGameplayTaskEditorCommands::Get();
+	
+	MenuBuilder.BeginSection("DGTT_Window", FText::FromString("DGTT_Window"));
+	// Add Window...
+	MenuBuilder.AddMenuEntry(Commands.OpenManager);
+
+	MenuBuilder.EndSection();
+
+	MenuBuilder.BeginSection("DGTT_Create", FText::FromString("DGTT_Create"));
+	// Add Create...
+	MenuBuilder.AddMenuEntry(Commands.CreateTask);
+	MenuBuilder.AddMenuEntry(Commands.CreateTaskType);
+	MenuBuilder.AddMenuEntry(Commands.CreateCondition);
+	
+	MenuBuilder.EndSection();
 }
 
 #undef LOCTEXT_NAMESPACE

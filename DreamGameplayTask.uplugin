@@ -3,12 +3,12 @@
 	"Version": 1,
 	"VersionName": "2.0.1",
 	"FriendlyName": "DreamGameplayTask",
-	"Description": "Gameplay task system - lightweight - versatility",
+	"Description": "Common Gameplay Task",
 	"Category": "DreamPlugin",
 	"CreatedBy": "DreamMoon",
 	"CreatedByURL": "https://dmstudio.top",
 	"DocsURL": "",
-	"MarketplaceURL": "https://github.com/TypeDreamMoon/DreamGameplayTask",
+	"MarketplaceURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
@@ -22,7 +22,7 @@
 		{
 			"Name": "DreamGameplayTaskEditor",
 			"Type": "UncookedOnly",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"SupportURL": ""

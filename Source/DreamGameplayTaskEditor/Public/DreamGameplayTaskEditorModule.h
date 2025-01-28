@@ -14,14 +14,17 @@ public:
 public:
     FString CurrentContentBrowserPath = TEXT("/All/Game");
 
-protected:
+private:
     void RegisterContentBrowserPathChange();
     void RegisterCommand();
-    void RegisterToolbar();
     void MakeCommandList();
-    void AddEditorToolsToToolbarExtension(FToolBarBuilder& Builder);
     TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
+    
     FName GetTaskManagerName();
-    TSharedRef<SWidget> MakeEditorToolsMenu(bool InitialSetup, bool ComponentAction, bool OpenWindow, bool PreviewInViewport, bool EditorCameraControl, bool Others);
+
+    // Menu Builder
+    void RegisterMenu();
+    void MakeMenu(FMenuBuilder& MenuBuilder);
+
     TSharedPtr<class FUICommandList> CommandList;
 };
