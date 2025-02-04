@@ -5,6 +5,14 @@
 #if WITH_EDITOR
 #include "ISettingsModule.h"
 #endif
+#include "Classes/DreamTask.h"
+#include "Classes/DreamTaskConditionTemplate.h"
+
+UDreamGameplayTaskEditorSetting::UDreamGameplayTaskEditorSetting(const FObjectInitializer& ObjectInitializer)
+{
+	CreateTaskClass = UDreamTask::StaticClass();
+	CreateTaskConditionTemplateClass = UDreamTaskConditionTemplate::StaticClass();
+}
 
 UDreamGameplayTaskEditorSetting* UDreamGameplayTaskEditorSetting::Get()
 {
@@ -37,4 +45,14 @@ void UDreamGameplayTaskEditorSetting::Unregistered()
 		SettingsModule->UnregisterSettings("Editor", "DreamPlugin", "TaskPluginEditorSetting");
 	}
 #endif
+}
+
+TSubclassOf<UDreamTask> UDreamGameplayTaskEditorSetting::GetCreateTaskClass() const
+{
+	return CreateTaskClass.LoadSynchronous();
+}
+
+TSubclassOf<UDreamTaskConditionTemplate> UDreamGameplayTaskEditorSetting::GetCreateTaskConditionTemplateClass() const
+{
+	return CreateTaskConditionTemplateClass.LoadSynchronous();
 }

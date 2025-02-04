@@ -7,18 +7,19 @@
 #include "UObject/Object.h"
 #include "DreamTask.generated.h"
 
+class UDreamTaskData;
 class UDreamTaskConditionTemplate;
 class UDreamTaskType;
 class UDreamTaskComponent;
 /**
- * 
+ * Dream Task Object
  */
 UCLASS(Blueprintable)
 class DREAMGAMEPLAYTASK_API UDreamTask : public UObject
 {
 	GENERATED_BODY()
 public:
-	UDreamTask() {}
+	UDreamTask(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
 	/**
@@ -58,6 +59,10 @@ public:
 	// 任务的优先级
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task)
 	EDreamTaskPriority TaskPriority = EDreamTaskPriority::EDTP_Normal;
+
+	// 任务数据
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = Task)
+	TObjectPtr<UDreamTaskData> TaskData;
 
 	// 任务的条件完成模式
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition)
@@ -159,6 +164,13 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	TMap<FName, int32> GetTaskConditionProgress() const;
+
+	/**
+	 * 获取自定义任务数据
+	 * @return 自定义的任务数据
+	 */
+	UFUNCTION(BlueprintPure, Category = Functions)
+	UDreamTaskData* GetTaskData() const;
 
 	/**
 	 * 任务是否完成

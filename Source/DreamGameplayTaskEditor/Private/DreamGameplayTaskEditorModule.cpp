@@ -3,6 +3,7 @@
 #include "ContentBrowserModule.h"
 #include "DreamGameplayTaskEditorCommands.h"
 #include "DreamGameplayTaskEditorLog.h"
+#include "DreamGameplayTaskEditorSetting.h"
 #include "DreamGameplayTaskEditorTools.h"
 #include "DreamGameplayTaskEditorStyle.h"
 #include "DreamGameplayTaskManager.h"
@@ -58,7 +59,7 @@ void FDreamGameplayTaskEditorModule::MakeCommandList()
 		FExecuteAction::CreateLambda([]()
 		{
 			FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(
-				UDreamTask::StaticClass(), FString("NewTask"));
+				UDreamGameplayTaskEditorSetting::Get()->GetCreateTaskClass(), FString("NewTask"));
 		})
 	);
 
@@ -75,7 +76,7 @@ void FDreamGameplayTaskEditorModule::MakeCommandList()
 		FExecuteAction::CreateLambda([]()
 		{
 			FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(
-				UDreamTaskConditionTemplate::StaticClass(), FString("NewCondition"));
+				UDreamGameplayTaskEditorSetting::Get()->GetCreateTaskConditionTemplateClass(), FString("NewCondition"));
 		}));
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(GetTaskManagerName(),

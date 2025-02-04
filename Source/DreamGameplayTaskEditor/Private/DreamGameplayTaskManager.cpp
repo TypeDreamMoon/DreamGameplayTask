@@ -78,7 +78,7 @@ void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 						.OnClicked_Lambda([]()
 						{
 							UBlueprint* Blueprint = FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(
-								UDreamTask::StaticClass(), FString(TEXT("NewTask")));
+								UDreamGameplayTaskEditorSetting::Get()->GetCreateTaskClass(), FString(TEXT("NewTask")));
 
 							if (!Blueprint) return FReply::Handled();
 

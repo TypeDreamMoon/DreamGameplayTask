@@ -6,6 +6,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "DreamGameplayTaskSetting.generated.h"
 
+class UDreamTaskData;
 class UDreamTask;
 
 /**
@@ -16,6 +17,9 @@ class DREAMGAMEPLAYTASK_API UDreamGameplayTaskSetting : public UDeveloperSetting
 {
 	GENERATED_BODY()
 
+public:
+	UDreamGameplayTaskSetting(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	static UDreamGameplayTaskSetting* Get();
 public:
 	virtual FName GetContainerName() const override { return FName(TEXT("Project")); }
 	virtual FName GetCategoryName() const override { return FName(TEXT("DreamPlugin")); }

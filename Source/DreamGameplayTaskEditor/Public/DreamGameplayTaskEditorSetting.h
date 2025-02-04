@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Classes/DreamTask.h"
 #include "Engine/DeveloperSettings.h"
 #include "DreamGameplayTaskEditorSetting.generated.h"
 
+class UDreamTaskConditionTemplate;
+class UDreamTask;
 /**
  * 
  */
@@ -13,6 +16,8 @@ UCLASS(Config = DreamGameplayTaskEditor, DefaultConfig)
 class DREAMGAMEPLAYTASKEDITOR_API UDreamGameplayTaskEditorSetting : public UDeveloperSettings
 {
 	GENERATED_BODY()
+public:
+	UDreamGameplayTaskEditorSetting(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 public:
 	static UDreamGameplayTaskEditorSetting* Get();
 	static void Register();
@@ -23,6 +28,12 @@ public:
 	virtual FName GetSectionName() const override { return TEXT("TaskPluginEditorSetting"); }
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "Manager")
+	TSoftClassPtr<UDreamTask> CreateTaskClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "Manager")
+	TSoftClassPtr<UDreamTaskConditionTemplate> CreateTaskConditionTemplateClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, meta=(LongPackageName), Category = "Manager")
 	TArray<FDirectoryPath> TaskLoadPaths = { FDirectoryPath(TEXT("/Game")) };
 
@@ -36,5 +47,9 @@ public:
 	FName ManagerVersion = FName(TEXT("2.1.0"));
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
-	FName PluginVersion = FName(TEXT("2.0.1"));
+	FName PluginVersion = FName(TEXT("2.1.0"));
+
+public:
+	TSubclassOf<UDreamTask> GetCreateTaskClass() const;
+	TSubclassOf<UDreamTaskConditionTemplate> GetCreateTaskConditionTemplateClass() const;
 };

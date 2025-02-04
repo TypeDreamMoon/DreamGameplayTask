@@ -64,11 +64,13 @@ TSharedRef<FSlateStyleSet> FDreamGameplayTaskEditorStyle::Create()
 	SET_STYLE_CLASS_ICON("DreamTaskConditionTemplate", "/Icons/Condition", Icon16x16);
 	SET_STYLE_CLASS_ICON("DreamTaskComponent", "/Icons/TaskComp", Icon16x16);
 	SET_STYLE_CLASS_ICON("DreamTaskType", "/Icons/Type", Icon16x16);
+	SET_STYLE_CLASS_ICON("DreamTaskData", "/Icons/Data", Icon16x16);
 
 	SET_STYLE_CLASS_THUMB("DreamTask", "/Icons/Task", Icon40x40);
 	SET_STYLE_CLASS_THUMB("DreamTaskConditionTemplate", "/Icons/Condition", Icon40x40);
 	SET_STYLE_CLASS_THUMB("DreamTaskComponent", "/Icons/Condition", Icon40x40);
 	SET_STYLE_CLASS_THUMB("DreamTaskType", "/Icons/Type", Icon40x40);
+	SET_STYLE_CLASS_THUMB("DreamTaskData", "/Icons/Data", Icon40x40);
 	
 	Style->Set("Editor.Toolbar", IMAGE_BRUSH(TEXT("/Icons/EdToolbar"), Icon40x40));
 

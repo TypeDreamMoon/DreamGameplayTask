@@ -3,10 +3,16 @@
 
 #include "Classes/DreamTask.h"
 
+#include "DreamGameplayTaskSetting.h"
 #include "Classes/DreamTaskConditionTemplate.h"
 #include "Classes/DreamTaskInterface.h"
 #include "Classes/DreamTaskComponent.h"
+#include "Classes/DreamTaskData.h"
 #include "Kismet/GameplayStatics.h"
+
+UDreamTask::UDreamTask(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+}
 
 void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* InPayload)
 {
@@ -170,6 +176,11 @@ TMap<FName, int32> UDreamTask::GetTaskConditionProgress() const
 		Result.Add(Element->ConditionName, Element->GetCount());
 	}
 	return Result;
+}
+
+UDreamTaskData* UDreamTask::GetTaskData() const
+{
+	return TaskData;
 }
 
 UDreamTask* UDreamTask::Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32> Progress)
