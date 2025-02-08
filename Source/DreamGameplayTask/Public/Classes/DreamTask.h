@@ -218,4 +218,7 @@ public:
 
 public:
 	static UDreamTask* Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32> Progress);
+
+public:
+	virtual UWorld* GetWorld() const override;
 };

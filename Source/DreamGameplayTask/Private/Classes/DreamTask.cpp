@@ -191,3 +191,13 @@ UDreamTask* UDreamTask::Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32>
 	Task->SetTaskConditionProgress(Progress);
 	return Task;
 }
+
+UWorld* UDreamTask::GetWorld() const
+{
+	if (HasAllFlags(RF_ClassDefaultObject))
+	{
+		// If we are a CDO, we must return nullptr instead of calling Outer->GetWorld() to fool UObject::ImplementsGetWorld.
+		return nullptr;
+	}
+	return GetOuter()->GetWorld();
+}

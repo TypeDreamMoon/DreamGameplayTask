@@ -22,7 +22,7 @@ UDreamTask* UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask> InClass
 
 	if (!HasTaskByClass(InClass))
 	{
-		UDreamTask* NewTask = NewObject<UDreamTask>(this, InClass);
+		UDreamTask* NewTask = NewObject<UDreamTask>(GetOwner(), InClass);
 		NewTask->InitializeTask(this, InPayload);
 		GetTaskList().Add(NewTask);
 		OnTaskListChanged.Broadcast(GetTaskList());
