@@ -137,7 +137,7 @@ void UDreamTask::UpdateTaskByClass(TArray<TSubclassOf<UDreamTaskConditionTemplat
 		CheckTaskCompleted();
 	}
 
-	OnTaskCompleted.Broadcast(this);
+	OnTaskUpdate.Broadcast(this);
 }
 
 void UDreamTask::SetTaskState(EDreamTaskState NewState)
