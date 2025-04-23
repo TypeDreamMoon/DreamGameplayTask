@@ -4,6 +4,7 @@
 #include "Classes/DreamTask.h"
 
 #include "DreamGameplayTaskSetting.h"
+#include "DreamGameplayTaskSubsystem.h"
 #include "Classes/DreamTaskConditionTemplate.h"
 #include "Classes/DreamTaskInterface.h"
 #include "Classes/DreamTaskComponent.h"
@@ -19,6 +20,12 @@ void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* 
 	OwnerComponent = InOwnerComponent;
 	Payload = InPayload;
 
+	if (bUseCompletionTime)
+	{
+		GWorld->GetSubsystem<UDreamGameplayTaskSubsystem>()->Push(this);
+	}
+
+	StartTime = FDateTime::Now();
 	BP_TaskInitialize();
 	for (auto Element : GetRelatedActors())
 	{
@@ -141,12 +148,14 @@ void UDreamTask::SetTaskState(EDreamTaskState NewState)
 	OnTaskStateUpdate.Broadcast(this);
 	OwnerComponent->OnTaskUpdate.Broadcast(this);
 	OwnerComponent->OnTaskStateUpdate.Broadcast(this);
+	BP_TaskUpdate();
 	
 	switch (NewState)
 	{
 	case EDreamTaskState::EDTS_Accept:
 		break;
 	case EDreamTaskState::EDTS_Completed:
+		EndTime = FDateTime::Now();
 		BP_TaskCompleted();
 		break;
 	case EDreamTaskState::EDTS_Failed:

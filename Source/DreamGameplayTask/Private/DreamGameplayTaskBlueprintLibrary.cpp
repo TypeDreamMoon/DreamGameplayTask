@@ -92,3 +92,8 @@ TArray<UDreamTask*> UDreamGameplayTaskBlueprintLibrary::FilterTasksByState(const
 	}
 	return Result;
 }
+
+bool UDreamGameplayTaskBlueprintLibrary::IsValidTaskHandle(FDreamTaskSubsystemHandle InHandle)
+{
+	return InHandle.IsValid();
+}

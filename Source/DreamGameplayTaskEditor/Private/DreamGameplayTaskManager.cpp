@@ -28,6 +28,45 @@
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
+TSharedRef<SHorizontalBox> FDreamTaskManagerTools::MakeIconAndTextWidget(const FText& Text, const FSlateBrush* IconBrush, int IconSize, float FontSize)
+{
+	return SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Center)
+		.AutoWidth()
+		[
+			SNew(SBox)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.WidthOverride(IconSize)
+			.HeightOverride(IconSize)
+			[
+				SNew(SImage)
+				.Image(IconBrush)
+			]
+		]
+
+		+ SHorizontalBox::Slot()
+		.VAlign(VAlign_Center)
+		.AutoWidth()
+		.Padding(2.f, 0.f)
+		[
+			SNew(STextBlock)
+			.Font(GetTextFont(FontSize))
+			.Text(Text)
+		];
+}
+
+FSlateFontInfo FDreamTaskManagerTools::GetTextFont(float Size)
+{
+	FSlateFontInfo Font = UDreamGameplayTaskEditorSetting::Get()->ManagerFont;
+	Font.Size = Size;
+	return Font;
+}
+
+using namespace FDreamTaskManagerTools;
+
 void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 {
 	AssetRegistryModule = &FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
@@ -165,14 +204,14 @@ void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 						.VAlignHeader(VAlign_Center)
 						.HAlignCell(HAlign_Left)
 						.VAlignCell(VAlign_Center)
-						+ SHeaderRow::Column(TEXT("OpenEditor"))
-						.DefaultLabel(FText::FromString(TEXT("TaskDisplayName")))
+						+ SHeaderRow::Column(TEXT("TaskAction"))
+						.DefaultLabel(FText::FromString(TEXT("TaskAction")))
 						.HAlignHeader(HAlign_Center)
 						.VAlignHeader(VAlign_Center)
 						.HAlignCell(HAlign_Fill)
 						.VAlignCell(VAlign_Fill))
 				]
-				
+
 				+ SWidgetSwitcher::Slot()
 				.HAlign(SLATE_HFILL)
 				.VAlign(SLATE_VFILL)
@@ -311,72 +350,13 @@ void SDreamGameplayTaskManager::UnregisteredAutoRefreshList()
 	AssetRegistryModule->Get().OnAssetRemoved().RemoveAll(this);
 }
 
-FSlateFontInfo SDreamGameplayTaskManager::GetTextFont(float Size) const
-{
-	FSlateFontInfo Font = UDreamGameplayTaskEditorSetting::Get()->ManagerFont;
-	Font.Size = Size;
-	return Font;
-}
-
-TSharedRef<SHorizontalBox> SDreamGameplayTaskManager::MakeIconAndTextWidget(const FText& Text, const FSlateBrush* IconBrush, int IconSize, float FontSize)
-{
-	return SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot()
-		.VAlign(VAlign_Center)
-		.HAlign(HAlign_Center)
-		.AutoWidth()
-		[
-			SNew(SBox)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.WidthOverride(IconSize)
-			.HeightOverride(IconSize)
-			[
-				SNew(SImage)
-				.Image(IconBrush)
-			]
-		]
-
-		+ SHorizontalBox::Slot()
-		.VAlign(VAlign_Center)
-		.AutoWidth()
-		.Padding(2.f, 0.f)
-		[
-			SNew(STextBlock)
-			.Font(GetTextFont(FontSize))
-			.Text(Text)
-		];
-}
-
 TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskManager::MakeRow(FRowData RowData, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	FSlateFontInfo Font = GetTextFont(15.0f);
 
-	auto GetFont = [Font](float Size = 15.0f)
-	{
-		FSlateFontInfo BufFont = Font;
-		BufFont.Size = Size;
-		return BufFont;
-	};
-
 	auto GetTask = [RowData]()
 	{
 		return RowData.Get()->Task;
-	};
-
-	auto TaskDisplayName = [GetTask]
-	{
-		return GetTask()->GetTaskDisplayName().ToString();
-	};
-
-	auto GetBlueprint = [RowData]()
-	{
-		return RowData.Get()->Blueprint;
-	};
-
-	auto TaskName = [GetTask]()
-	{
-		return MAKE_TEXT(TEXT("Task Name : %s"), *GetTask()->GetTaskName().ToString());
 	};
 
 	auto TooltipText = [GetTask]()
@@ -421,7 +401,7 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 			"Task Desc : %s \n"
 			"Task Type   : %s \n"
 			"Sub Tasks : %s \n"
-			"Conditons : %s"
+			"Conditions : %s"
 		),
 		                                         *TaskName,
 		                                         *TaskDisplayName,
@@ -432,89 +412,75 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 		));
 	};
 
-	auto TaskBlueprintName = [GetBlueprint]()
-	{
-		return MAKE_TEXT(TEXT("Blueprint Name: %s"), *GetBlueprint()->GetName());
-	};
-
-	auto OpenEditorAction = [GetBlueprint]()
-	{
-		if (GetBlueprint())
-		{
-			GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(
-				GetBlueprint());
-		}
-	};
-
-	TSharedRef<STableRow<FRowData>> Row =
-		SNew(STableRow<FRowData>, OwnerTable)
-		.ToolTipText(TooltipText())
-		[
-			SNew(SBorder)
-			.BorderBackgroundColor(FLinearColor::Black)
-			.Padding(FMargin(4.0f))
-			[
-				// ROW LINE MAIN
-				SNew(SSplitter)
-
-				// TODO : TASK NAME
-				+ SSplitter::Slot()
-				[
-					SNew(STextBlock)
-					.Text(TaskName())
-					.Font(GetFont(10.0f))
-				]
-
-				// TODO : TASK BLUEPRINT NAME
-				+ SSplitter::Slot()
-				[
-					SNew(STextBlock)
-					.Text(TaskBlueprintName())
-					.Font(GetFont(10.0f))
-				]
-
-				// TODO : CONTENT
-				+ SSplitter::Slot()
-				[
-					SNew(SHorizontalBox)
-
-					// TODO : TASK DISPLAY NAME
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.FillWidth(1.0f)
-					[
-						SNew(STextBlock)
-						.Text(FText::FromString(TaskDisplayName()))
-						.Font(GetFont(10.0f))
-					]
-
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					[
-						SNew(SButton)
-						.OnClicked_Lambda([OpenEditorAction]()
-						{
-							OpenEditorAction();
-							return FReply::Handled();
-						})
-						[
-							MakeIconAndTextWidget(
-								MAKE_TEXT(TEXT("Open In Editor")),
-								GET_STYLE.Get()->GetBrush(TEXT("DreamGameplayTaskEditor.OpenEditor")),
-								15.0f
-							)
-						] // END BUTTON
-					] // END HORIZONTAL BOX
-				] // END CONTENT HORIZONTAL BOX
-			] // END BORDER
-		];
-
-	return Row;
+	return SNew(SDreamGameplayTaskManagerItemRow, OwnerTable)
+		.ItemShow(RowData)
+		.ToolTipText(TooltipText());
 }
 
 TSharedRef<ITableRow> SDreamGameplayTaskManager::OnGenerateRowForList(FRowData InItem, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	return MakeRow(InItem, OwnerTable);
+}
+
+void SDreamGameplayTaskManagerItemRow::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase> InOwnerTableView)
+{
+	ItemShow = InArgs._ItemShow;
+	FSuperRowType::Construct(FSuperRowType::FArguments().Padding(2.f), InOwnerTableView);
+}
+
+TSharedRef<SWidget> SDreamGameplayTaskManagerItemRow::GenerateWidgetForColumn(const FName& ColumnName)
+{
+	if (ColumnName == "TaskName")
+	{
+		return SNew(STextBlock)
+			.Text_Lambda([this]()
+			{
+				return FText::FromString(ItemShow->Task->GetTaskName().ToString());
+			});
+	}
+	else if (ColumnName == "BlueprintName")
+	{
+		return SNew(STextBlock)
+			.Text_Lambda([this]()
+			{
+				return FText::FromString(ItemShow->Blueprint->GetName());
+			});
+	}
+	else if (ColumnName == "TaskDisplayName")
+	{
+		return SNew(STextBlock)
+			.Text_Lambda([this]()
+			{
+				return ItemShow->Task->GetTaskDisplayName();
+			});
+	}
+	else if (ColumnName == "TaskAction")
+	{
+		auto OpenEditorAction = [this]()
+		{
+			if (ItemShow->Blueprint)
+			{
+				GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(
+					ItemShow->Blueprint);
+			}
+		};
+		return SNew(SButton)
+			.OnClicked_Lambda([OpenEditorAction]()
+			{
+				OpenEditorAction();
+				return FReply::Handled();
+			})
+			[
+				MakeIconAndTextWidget(
+					MAKE_TEXT(TEXT("Open In Editor")),
+					GET_STYLE.Get()->GetBrush(TEXT("DreamGameplayTaskEditor.OpenEditor")),
+					15.0f
+				)
+			]; // END BUTTON
+	}
+
+	return SNew(STextBlock)
+		.Text(FText::FromString("ERROR"));
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

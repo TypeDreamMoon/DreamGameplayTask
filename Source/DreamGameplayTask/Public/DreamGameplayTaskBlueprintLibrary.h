@@ -42,4 +42,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskBlueprint")
 	static TArray<UDreamTask*> FilterTasksByState(const TArray<UDreamTask*>& Tasks, EDreamTaskState State);
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskBlueprint")
+	static bool IsValidTaskHandle(FDreamTaskSubsystemHandle InHandle);
 };

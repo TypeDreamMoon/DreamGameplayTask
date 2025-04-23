@@ -37,11 +37,11 @@ public:
 	FName TaskName = FName(TEXT("Task"));
 	
 	// 任务的名称
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Task)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task)
 	FText TaskDisplayName = FText::FromString(TEXT("NewTask"));
 
 	// 任务的描述
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Task)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task)
 	FText TaskDesc = FText::FromString(TEXT("This is a new task."));
 
 	// 任务的类型
@@ -64,6 +64,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = Task)
 	TObjectPtr<UDreamTaskData> TaskData;
 
+	// 是否启用完成时间
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (InlineEditConditionToggle))
+	bool bUseCompletionTime = false;
+
+	// 任务完成时间
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (Units = "Seconds", EditCondition = "bUseCompletionTime"), Category = Task)
+	float TaskCompletionTime = 1.f;
+
 	// 任务的条件完成模式
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition)
 	EDreamTaskConditionalCompletionMode TaskConditionalCompletionMode = EDreamTaskConditionalCompletionMode::EDTCCM_All;
@@ -79,6 +87,14 @@ public:
 	// 任务的状态
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
 	EDreamTaskState TaskState = EDreamTaskState::EDTS_Accept;
+
+	// 任务开始时间
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	FDateTime StartTime;
+
+	// 任务结束时间
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	FDateTime EndTime;
 
 	// 任务的额外数据 此数据无法保存
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
