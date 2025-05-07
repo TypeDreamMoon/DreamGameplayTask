@@ -59,12 +59,20 @@ void UDreamGameplayTaskSubsystem::UpdateHandles()
 	}
 
 	// Clean
+
+	TArray<FDreamTaskSubsystemHandle> CleanHandles;
+	
 	for (auto Element : TaskSubsystemHandles)
 	{
 		if (Element.TaskIsFailed())
 		{
 			Element.GetTask()->SetTaskState(EDreamTaskState::EDTS_Failed);
-			TaskSubsystemHandles.Remove(Element);
+			CleanHandles.Add(Element);
 		}
+	}
+
+	for (auto Handle : CleanHandles)
+	{
+		TaskSubsystemHandles.Remove(Handle);
 	}
 }
