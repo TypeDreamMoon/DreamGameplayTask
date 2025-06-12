@@ -237,4 +237,7 @@ public:
 
 public:
 	virtual UWorld* GetWorld() const override;
+
+protected:
+	virtual void CompletedTask_Internal();
 };

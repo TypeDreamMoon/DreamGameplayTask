@@ -28,4 +28,7 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "TaskMapping")
 	TMap<TSubclassOf<UDreamTask>, FGuid> TaskMapping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "DebugTaskLifeTime")
+	bool bDebugTaskLifeTime = false;
 };

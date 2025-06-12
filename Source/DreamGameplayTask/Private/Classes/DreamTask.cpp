@@ -156,7 +156,7 @@ void UDreamTask::SetTaskState(EDreamTaskState NewState)
 		break;
 	case EDreamTaskState::EDTS_Completed:
 		EndTime = FDateTime::Now();
-		BP_TaskCompleted();
+		CompletedTask_Internal();
 		break;
 	case EDreamTaskState::EDTS_Failed:
 		break;
@@ -209,4 +209,9 @@ UWorld* UDreamTask::GetWorld() const
 		return nullptr;
 	}
 	return GetOuter()->GetWorld();
+}
+
+void UDreamTask::CompletedTask_Internal()
+{
+	BP_TaskCompleted();
 }
