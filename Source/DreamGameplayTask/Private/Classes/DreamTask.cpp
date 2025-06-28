@@ -78,7 +78,7 @@ void UDreamTask::UpdateTaskByName(TArray<FName> ConditionNames)
 
 void UDreamTask::SetTaskState(EDreamTaskState NewState)
 {
-	UpdateTaskStatic_Internal(NewState);
+	UpdateTaskState_Internal(NewState);
 }
 
 void UDreamTask::SetTaskConditionProgress(const TMap<FName, int32>& InValue)
@@ -190,7 +190,7 @@ void UDreamTask::FailedTask_Internal()
 	BP_TaskFailed();
 }
 
-void UDreamTask::UpdateTaskStatic_Internal(EDreamTaskState NewState)
+void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 {
 	TaskState = NewState;
 
@@ -203,6 +203,7 @@ void UDreamTask::UpdateTaskStatic_Internal(EDreamTaskState NewState)
 	if (NewState & EDreamTaskState::EDTS_Accept)
 	{
 		AcceptTask_Internal();
+		GetOwnerComponent()->ActiveTimer();
 	}
 	else if (NewState & EDreamTaskState::EDTS_Completed)
 	{
@@ -215,6 +216,7 @@ void UDreamTask::UpdateTaskStatic_Internal(EDreamTaskState NewState)
 	else if (NewState & EDreamTaskState::EDTS_Going)
 	{
 		GoingTask_Internal();
+		GetOwnerComponent()->ActiveTimer();
 	}
 	else if (NewState & EDreamTaskState::EDTS_Timeout)
 	{

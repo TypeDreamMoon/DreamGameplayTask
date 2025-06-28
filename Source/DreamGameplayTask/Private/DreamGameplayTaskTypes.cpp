@@ -170,6 +170,8 @@ FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::AddHandle(FDreamTaskSpecHan
 
 	Handles.Add(InHandle);
 
+	ChangeContainerState();
+
 	return InHandle;
 }
 
@@ -234,10 +236,69 @@ int FDreamTaskSpecHandleContainer::SetHandles(const TArray<FDreamTaskSpecHandle>
 
 void FDreamTaskSpecHandleContainer::UpdateHandles(float DeltaTime)
 {
+	if (GetHandles().IsEmpty())
+		ContainerState = EDreamTaskSpecHandleContainerState::Empty;
+
+	int CompletedNumber = 0;
+
 	for (FDreamTaskSpecHandle& Handle : GetHandles())
 	{
 		Handle.Update(DeltaTime);
+
+		if (Handle.IsCompleted())
+		{
+			CompletedNumber++;
+		}
 	}
+
+	if (CompletedNumber >= Handles.Num())
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::AllCompleted;
+	}
+	else if (CompletedNumber > 0)
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::SomeCompleted;
+	}
+	else if (CompletedNumber == 0)
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::NoCompleted;
+	}
+}
+
+void FDreamTaskSpecHandleContainer::ChangeContainerState()
+{
+	if (ContainerState & (EDreamTaskSpecHandleContainerState::Empty | EDreamTaskSpecHandleContainerState::None)) // 全空
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::NoCompleted;
+	}
+	else if (ContainerState & EDreamTaskSpecHandleContainerState::AllCompleted) // 全满
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::SomeCompleted;
+	}
+	else if (ContainerState & EDreamTaskSpecHandleContainerState::SomeCompleted) // 一些
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::SomeCompleted;
+	}
+}
+
+bool FDreamTaskSpecHandleContainer::IsAllCompleted() const
+{
+	return ContainerState & EDreamTaskSpecHandleContainerState::AllCompleted;
+}
+
+bool FDreamTaskSpecHandleContainer::IsSomeCompleted() const
+{
+	return ContainerState & EDreamTaskSpecHandleContainerState::SomeCompleted;
+}
+
+bool FDreamTaskSpecHandleContainer::IsNoCompleted() const
+{
+	return ContainerState & EDreamTaskSpecHandleContainerState::NoCompleted;
+}
+
+bool FDreamTaskSpecHandleContainer::IsEmpty() const
+{
+	return ContainerState & EDreamTaskSpecHandleContainerState::Empty;
 }
 
 UDreamTaskConditionTemplate* FDreamTaskCompletedCondition::GetConditionByName(FName InConditionName) const

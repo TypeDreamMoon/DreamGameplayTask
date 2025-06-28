@@ -8,8 +8,6 @@
 #include "Components/ActorComponent.h"
 #include "DreamTaskComponent.generated.h"
 
-class UDreamTask;
-
 /**
  * Dream Gameplay Task Manager Component
  */
@@ -46,6 +44,14 @@ public:
 	// 任务列表
 	UPROPERTY(BlueprintReadOnly)
 	FDreamTaskSpecHandleContainer TaskData;
+
+	// 当任务列表无任务/任务全部完成时 自动关闭定时器
+	UPROPERTY(BlueprintReadOnly)
+	bool bTimerAutomation = true;
+
+	// 定时器间隔
+	UPROPERTY(BlueprintReadOnly)
+	float TimerDeltaTime = 0.f;
 
 public:
 	/**
@@ -135,7 +141,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = Functions)
 	const FDreamTaskSpecHandle& GetTaskByName(FName InTaskName);
 
+public:
+	void ActiveTimer();
+
 private:
+	FTimerHandle TimerHandle;
 	void Updater();
 
 public:

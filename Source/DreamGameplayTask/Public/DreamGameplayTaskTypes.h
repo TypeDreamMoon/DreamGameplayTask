@@ -32,6 +32,26 @@ inline bool operator&(EDreamTaskState A, EDreamTaskState B)
 	return static_cast<uint8>(A) & static_cast<uint8>(B);
 }
 
+UENUM(BlueprintType)
+enum class EDreamTaskSpecHandleContainerState : uint8
+{
+	None = 0, // 未定义
+	Empty = 1 << 0, // 空
+	NoCompleted = 1 << 1, // 全部未完成
+	SomeCompleted = 1 << 2, // 部分完成
+	AllCompleted = 1 << 3, // 全部
+};
+
+inline EDreamTaskSpecHandleContainerState operator|(EDreamTaskSpecHandleContainerState LHS, EDreamTaskSpecHandleContainerState RHS)
+{
+	return static_cast<EDreamTaskSpecHandleContainerState>(static_cast<uint8>(LHS) | static_cast<uint8>(RHS));
+}
+
+inline bool operator&(EDreamTaskSpecHandleContainerState LHS, EDreamTaskSpecHandleContainerState RHS)
+{
+	return static_cast<uint8>(LHS) & static_cast<uint8>(RHS);
+}
+
 /**
  *  Task Priority
  */
@@ -107,7 +127,7 @@ public:
 
 	FDreamTaskSpecHandle(TObjectPtr<UDreamTask> InTask, FDateTime InStartTime);
 
-	static const FDreamTaskSpecHandle& InvalidHandle(); 
+	static const FDreamTaskSpecHandle& InvalidHandle();
 
 public:
 	// 用于标记此Handle是否有效
@@ -186,6 +206,8 @@ private:
 	UPROPERTY()
 	TArray<FDreamTaskSpecHandle> Handles;
 
+	EDreamTaskSpecHandleContainerState ContainerState = EDreamTaskSpecHandleContainerState::Empty;
+
 public:
 	TArray<FDreamTaskSpecHandle>& GetHandles();
 	// 添加 Handle 会自动初始化 StartTime 和 Guid
@@ -208,6 +230,14 @@ public:
 public:
 	// 更新所有 Handle
 	void UpdateHandles(float DeltaTime);
+
+	bool IsAllCompleted() const;
+	bool IsSomeCompleted() const;
+	bool IsNoCompleted() const;
+	bool IsEmpty() const;
+
+private:
+	void ChangeContainerState();
 };
 
 USTRUCT(BlueprintType)

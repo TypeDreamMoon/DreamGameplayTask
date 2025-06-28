@@ -114,3 +114,21 @@ const FDreamTaskSpecHandle& UDreamTaskComponent::GetTaskByName(FName InTaskName)
 		return Handle == InTaskName;
 	});
 }
+
+void UDreamTaskComponent::ActiveTimer()
+{
+	GetOwner()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
+}
+
+void UDreamTaskComponent::Updater()
+{
+	TaskData.UpdateHandles(TimerDeltaTime);
+
+	if (bTimerAutomation)
+	{
+		if (TaskData.IsAllCompleted() || TaskData.IsEmpty())
+		{
+			GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		}
+	}
+}

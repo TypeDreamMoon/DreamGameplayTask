@@ -259,5 +259,5 @@ protected:
 	virtual void GoingTask_Internal();
 	virtual void TimeoutTask_Internal();
 	virtual void FailedTask_Internal();
-	virtual void UpdateTaskStatic_Internal(EDreamTaskState NewState);
+	virtual void UpdateTaskState_Internal(EDreamTaskState NewState);
 };
