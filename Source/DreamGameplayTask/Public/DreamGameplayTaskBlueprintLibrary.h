@@ -45,5 +45,5 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskBlueprint")
-	static bool IsValidTaskHandle(FDreamTaskSubsystemHandle InHandle);
+	static bool IsValidTaskHandle(FDreamTaskSpecHandle InHandle);
 };

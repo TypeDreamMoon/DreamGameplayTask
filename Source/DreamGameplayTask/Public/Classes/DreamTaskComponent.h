@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DreamGameplayTaskTypes.h"
+#include "DreamTask.h"
 #include "Components/ActorComponent.h"
 #include "DreamTaskComponent.generated.h"
 
@@ -23,7 +25,7 @@ public:
 	virtual void BeginPlay() override;
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDelegate, const TArray<UDreamTask*>&, TaskList);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDelegate, const FDreamTaskSpecHandleContainer&, TaskData);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskDelegate, UDreamTask*, Task);
 
@@ -42,8 +44,8 @@ public:
 
 public:
 	// 任务列表
-	UPROPERTY(BlueprintReadOnly, Category = Data)
-	TArray<UDreamTask*> TaskList;
+	UPROPERTY(BlueprintReadOnly)
+	FDreamTaskSpecHandleContainer TaskData;
 
 public:
 	/**
@@ -53,14 +55,14 @@ public:
 	 * @return 给予的任务
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions, meta=(DeterminesOutputType = InClass))
-	UDreamTask* GiveTaskByClass(TSubclassOf<UDreamTask> InClass, UObject* InPayload = nullptr);
+	FDreamTaskSpecHandle GiveTaskByClass(TSubclassOf<UDreamTask> InClass, UObject* InPayload = nullptr);
 
 	/**
 	 * 初始化任务列表
 	 * @param NewList 新的任务列表
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	void InitializeTaskList(const TArray<UDreamTask*>& NewList);
+	void InitializeTaskList(FDreamTaskSpecHandleContainer NewList);
 
 	/**
 	 * 任务类是否在列表内
@@ -80,7 +82,7 @@ public:
 
 	/**
 	 * 移除任务 (Class)
-	 * @param InRemoveTaskClass 要移除的任务类
+	 * @param InRemoveTaskName 要移除的任务名称
 	 * @return 是否成功移除
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
@@ -95,43 +97,27 @@ public:
 	bool RemoveTaskByName(FName InRemoveTaskName);
 
 	/**
-	 * 更新任务 (Class) (ConditionNames)
-	 * @param InTaskClass 要更新的任务类
-	 * @param InConditionNames 要更新的任务条件名称
-	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateTaskOfConditionNamesByClass(TSubclassOf<UDreamTask> InTaskClass, const TArray<FName>& InConditionNames);
-
-	/**
-	 * 更新任务 (Class) (ConditionName)
-	 * @param InTaskClass 要更新的任务类
-	 * @param InConditionName 要更新的任务条件名称
-	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateTaskOfConditionNameByClass(TSubclassOf<UDreamTask> InTaskClass, FName InConditionName);
-
-	/**
 	 * 更新任务 (Name) (ConditionNames)
 	 * @param TaskName 要更新的任务名称
 	 * @param InConditionNames 要更新的任务条件名称
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateTaskOfConditionNamesByName(FName TaskName, const TArray<FName>& InConditionNames);
+	void UpdateTask(FName TaskName, const TArray<FName>& InConditionNames);
 
 	/**
-	 * 更新任务 (Name) (ConditionName)
-	 * @param TaskName 要更新的任务名称
-	 * @param InConditionName 要更新的任务条件名称
+	 * 获取任务 (Class) (ConditionNames)
+	 * @param InClass 要更新的任务类
+	 * @param InConditionNames 要更新的任务条件名称
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateTaskOfConditionNameByName(FName TaskName, FName InConditionName);
+	void UpdateTaskByClass(TSubclassOf<UDreamTask> InClass, const TArray<FName>& InConditionNames);
 
 	/**
 	 * 获取任务列表
 	 * @return 任务列表
 	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
-	TArray<UDreamTask*>& GetTaskList() { return TaskList; }
+	TArray<FDreamTaskSpecHandle>& GetTaskList() { return TaskData.GetHandles(); }
 
 	/**
 	 * 获取任务 (Class)
@@ -139,7 +125,7 @@ public:
 	 * @return 获取到的任务
 	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
-	UDreamTask* GetTaskByClass(TSubclassOf<UDreamTask> InTaskClass);
+	const FDreamTaskSpecHandle& GetTaskByClass(TSubclassOf<UDreamTask> InTaskClass);
 
 	/**
 	 * 获取任务 (Name)
@@ -147,5 +133,24 @@ public:
 	 * @return 获取到的任务
 	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
-	UDreamTask* GetTaskByName(FName InTaskName);
+	const FDreamTaskSpecHandle& GetTaskByName(FName InTaskName);
+
+private:
+	void Updater();
+
+public:
+	template <typename T>
+	T* NewTask(TSubclassOf<T> Class, UObject* Payload = nullptr)
+	{
+		if (Class->IsChildOf(UDreamTask::StaticClass()))
+		{
+			UDreamTask* Task = NewObject<UDreamTask>(this, Class);
+			Task->InitializeTask(this, Payload);
+			return Task;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
 };

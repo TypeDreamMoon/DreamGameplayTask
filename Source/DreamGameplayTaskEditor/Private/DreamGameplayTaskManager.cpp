@@ -385,12 +385,9 @@ TSharedRef<STableRow<SDreamGameplayTaskManager::FRowData>> SDreamGameplayTaskMan
 			if (!GetTask()->GetTaskConditions().IsEmpty())
 			{
 				ConditionsName.Empty();
-				for (auto Element : GetTask()->GetTaskConditions())
+				for (auto Element : GetTask()->TaskCompletedCondition.Conditions)
 				{
-					if (Element)
-						ConditionsName += FString::Printf(TEXT("\n Condition Name : %s"), *Element->ConditionName.ToString());
-					else
-						continue;
+					ConditionsName += FString::Printf(TEXT("\n Condition Name : %s"), *Element.Key.ToString());
 				}
 			}
 		}

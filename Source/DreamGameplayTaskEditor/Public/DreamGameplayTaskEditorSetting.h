@@ -41,13 +41,13 @@ public:
 	bool bManagerStartupRefresh = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "Manager|Style")
-	FSlateFontInfo ManagerFont = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 12);
+	FSlateFontInfo ManagerFont;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
-	FName ManagerVersion = FName(TEXT("2.2.0"));
+	FName ManagerVersion = FName(TEXT("2.3.0"));
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
-	FName PluginVersion = FName(TEXT("2.2.0"));
+	FName PluginVersion = FName(TEXT("3.0.0"));
 
 public:
 	TSubclassOf<UDreamTask> GetCreateTaskClass() const;

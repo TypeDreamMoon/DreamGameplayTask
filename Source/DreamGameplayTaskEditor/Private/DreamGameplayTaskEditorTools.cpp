@@ -4,6 +4,7 @@
 #include "DreamGameplayTaskEditorLog.h"
 #include "DreamGameplayTaskEditorModule.h"
 #include "DreamGameplayTaskEditorSetting.h"
+#include "DreamGameplayTaskSetting.h"
 #include "KismetCompilerModule.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Classes/DreamTask.h"
@@ -15,7 +16,11 @@
 
 UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(TSubclassOf<UObject> Class, FString Name, EBlueprintType BlueprintType)
 {
-	check(FKismetEditorUtilities::CanCreateBlueprintOfClass(Class));
+	if (!FKismetEditorUtilities::CanCreateBlueprintOfClass(Class))
+	{
+		DGT_ED_FLOG(Error, TEXT("Can't create blueprint for class"));
+		return nullptr;
+	}
 
 	// Pre-generate a unique asset name to fill out the path picker dialog with.
 	if (Name.Len() == 0)
@@ -78,6 +83,14 @@ UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(TSubclas
 			Package->MarkPackageDirty();
 
 			DGT_ED_FLOG(Log, TEXT("Create Blueprint %s"), *UserPackageName);
+
+			if (Class->IsChildOf(UDreamTask::StaticClass()))
+			{
+				if (UDreamGameplayTaskSetting* Setting = UDreamGameplayTaskSetting::Get())
+				{
+					Setting->MakeTaskMapping(Blueprint->GeneratedClass->GetDefaultObject<UDreamTask>());
+				}
+			}
 
 			GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Blueprint);
 			return Blueprint;
@@ -185,13 +198,13 @@ TArray<FAssetData> FDreamGameplayTaskEditorTools::GetTaskAssetData()
 {
 	UObjectLibrary* Library = UObjectLibrary::CreateLibrary(UDreamTask::StaticClass(), true, GIsEditor);
 	Library->AddToRoot();
-	
-	TArray<FString> Paths = Conv_DirectoryToStrings(UDreamGameplayTaskEditorSetting::Get()->TaskLoadPaths); 
-	
+
+	TArray<FString> Paths = Conv_DirectoryToStrings(UDreamGameplayTaskEditorSetting::Get()->TaskLoadPaths);
+
 	Library->LoadBlueprintAssetDataFromPaths(Paths);
 
 	TArray<FAssetData> Result;
-	
+
 	Library->GetAssetDataList(Result);
 
 	return Result;

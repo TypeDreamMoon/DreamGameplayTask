@@ -93,7 +93,7 @@ TArray<UDreamTask*> UDreamGameplayTaskBlueprintLibrary::FilterTasksByState(const
 	return Result;
 }
 
-bool UDreamGameplayTaskBlueprintLibrary::IsValidTaskHandle(FDreamTaskSubsystemHandle InHandle)
+bool UDreamGameplayTaskBlueprintLibrary::IsValidTaskHandle(FDreamTaskSpecHandle InHandle)
 {
 	return InHandle.IsValid();
 }

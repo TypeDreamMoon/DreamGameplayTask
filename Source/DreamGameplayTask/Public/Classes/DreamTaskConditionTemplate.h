@@ -14,14 +14,11 @@ UCLASS(Blueprintable, Abstract, EditInlineNew)
 class DREAMGAMEPLAYTASK_API UDreamTaskConditionTemplate : public UObject
 {
 	GENERATED_BODY()
+
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskConditionNumDelegate, int, Num);
 
 public:
-	// 条件内部名称
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
-	FName ConditionName = FName(TEXT("00"));
-
 	// 条件显示名称
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
 	FText ConditionDisplayName = FText::FromString(TEXT("New Condition"));
@@ -46,8 +43,8 @@ public:
 	// 条件完成实现事件
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, DisplayName = "CompletedCondition", Category = Functions)
 	bool BP_CompletedCondition();
-		bool BP_CompletedCondition_Implementation();
-	
+	bool BP_CompletedCondition_Implementation();
+
 public:
 	// 是否完成
 	UFUNCTION(BlueprintPure, Category = Functions)
@@ -67,11 +64,11 @@ public:
 
 	// 更新条件
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateByName(TArray<FName> Names);
+	void Update();
 
-	// 更新条件
+	// 重置
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateByClass(const TArray<TSubclassOf<UDreamTaskConditionTemplate>>& Classes);
+	void Reset();
 
 public:
 	// 条件更新事件

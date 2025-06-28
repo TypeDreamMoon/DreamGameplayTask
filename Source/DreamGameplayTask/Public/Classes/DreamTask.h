@@ -11,13 +11,15 @@ class UDreamTaskData;
 class UDreamTaskConditionTemplate;
 class UDreamTaskType;
 class UDreamTaskComponent;
+
 /**
  * Dream Task Object
  */
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, Abstract)
 class DREAMGAMEPLAYTASK_API UDreamTask : public UObject
 {
 	GENERATED_BODY()
+
 public:
 	UDreamTask(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -28,6 +30,7 @@ public:
 	 * @param InPayload 额外数据
 	 */
 	virtual void InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* InPayload = nullptr);
+
 public:
 	// 任务的管理组件
 	UPROPERTY(BlueprintReadOnly, Category = System)
@@ -35,7 +38,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Task)
 	FName TaskName = FName(TEXT("Task"));
-	
+
 	// 任务的名称
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task)
 	FText TaskDisplayName = FText::FromString(TEXT("NewTask"));
@@ -64,37 +67,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = Task)
 	TObjectPtr<UDreamTaskData> TaskData;
 
-	// 是否启用完成时间
+	// 是否启用最大完成时间
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (InlineEditConditionToggle))
-	bool bUseCompletionTime = false;
+	bool bUseMaximumCompletionTime = false;
 
-	// 任务完成时间
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (Units = "Seconds", EditCondition = "bUseCompletionTime"), Category = Task)
-	float TaskCompletionTime = 1.f;
-
-	// 任务的条件完成模式
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition)
-	EDreamTaskConditionalCompletionMode TaskConditionalCompletionMode = EDreamTaskConditionalCompletionMode::EDTCCM_All;
-
-	// 自定义条件数量
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition, meta = (EditCondition = "TaskConditionalCompletionMode==EDreamTaskConditionalCompletionMode::EDTCCM_Custom", EditConditionHides))
-	int CustomConditionCount = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task, Meta = (EditCondition = "bUseMaximumCompletionTime"))
+	FTimecode MaximumCompletionTime;
 
 	// 任务的条件
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category= Condition)
-	TArray<UDreamTaskConditionTemplate*> TaskConditions;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= Condition)
+	FDreamTaskCompletedCondition TaskCompletedCondition;
+
 	// 任务的状态
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
 	EDreamTaskState TaskState = EDreamTaskState::EDTS_Accept;
-
-	// 任务开始时间
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	FDateTime StartTime;
-
-	// 任务结束时间
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	FDateTime EndTime;
 
 	// 任务的额外数据 此数据无法保存
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
@@ -122,22 +108,27 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Functions)
 	UObject* GetPayload() const { return Payload; }
-	
+
+	// --------------- Condition ---------------
+
 	// 获取任务条件列表
 	UFUNCTION(BlueprintPure, Category = Functions)
-	TArray<UDreamTaskConditionTemplate*>& GetTaskConditions() { return TaskConditions; }
+	TArray<UDreamTaskConditionTemplate*> GetTaskConditions()
+	{
+		return TaskCompletedCondition.GetConditions();
+	}
 
+	UFUNCTION(BlueprintPure, Category = Functions)
+	UDreamTaskConditionTemplate* GetTaskCondition(FName ConditionName);
+
+	// ---------------- SubTask ---------------
+
+	// 获取子任务类
 	UFUNCTION(BlueprintPure, Category = Functions)
 	TArray<TSubclassOf<UDreamTask>> GetSubTasks() { return SubTasks; }
 
-	/**
-	 * 获取条件
-	 * @param ConditionName 要获取的条件名称
-	 * @return 找到的条件
-	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
-	UDreamTaskConditionTemplate* GetTaskCondition(FName ConditionName);
-	
+	// ---------------- Tools -----------------
+
 	// 检查任务是否完成
 	UFUNCTION(BlueprintPure, Category = Functions)
 	bool CheckTaskCompleted();
@@ -152,13 +143,6 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void UpdateTaskByName(TArray<FName> ConditionNames);
-
-	/**
-	 * 更新任务的条件 通过类别
-	 * @param ConditionClasses 要更新的条件类别
-	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
-	void UpdateTaskByClass(TArray<TSubclassOf<UDreamTaskConditionTemplate>> ConditionClasses);
 
 	/**
 	 * 设置任务状态
@@ -193,44 +177,75 @@ public:
 	 * @return 任务是否完成
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	bool IsCompleted() const { return TaskState == EDreamTaskState::EDTS_Completed; }
+	bool IsCompleted() const { return TaskState & EDreamTaskState::EDTS_Completed; }
+
+	/**
+	 * 任务是否失败
+	 * @return 任务是否失败
+	 */
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	bool IsFailed() const { return TaskState & EDreamTaskState::EDTS_Failed; }
+
+	/**
+	 * 重置任务
+	 */
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void ResetTask();
 
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskDelegate, UDreamTask*, Task);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTaskSimpleDelegate);
+
 public:
 	// 任务更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskUpdate;
-	
+
 	// 任务状态更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskStateUpdate;
-	
+
 	// 任务条件更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskConditionUpdate;
-	
+
 	// 任务完成时 
 	UPROPERTY(BlueprintAssignable, Category = Delegate)
 	FTaskDelegate OnTaskCompleted;
 
 public:
 	// 任务初始化时
-	UFUNCTION(BlueprintImplementableEvent, Category = Events)
+	UFUNCTION(BlueprintNativeEvent, Category = Events, meta = (DisplayName = "Task Initialize"))
 	void BP_TaskInitialize();
 
 	// 任务更新时
-	UFUNCTION(BlueprintImplementableEvent, Category = Events)
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Update"))
 	void BP_TaskUpdate();
 
 	// 任务条件更新时
-	UFUNCTION(BlueprintImplementableEvent, Category = Events)
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Condition Update"))
 	void BP_TaskConditionUpdate();
 
 	// 任务完成时
-	UFUNCTION(BlueprintImplementableEvent, Category = Events)
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Completed"))
 	void BP_TaskCompleted();
+
+	// 任务失败时
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Failed"))
+	void BP_TaskFailed();
+
+	// 任务超时时
+	UFUNCTION(BlueprintNativeEvent, Category = Events, meta = (DisplayName = "Task Going"))
+	void BP_TaskGoing();
+
+	// 任务超时时
+	UFUNCTION(BlueprintNativeEvent, Category = Events, meta = (DisplayName = "Task Timeout"))
+	void BP_TaskTimeout();
+
+	// 任务开始时
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Accept"))
+	void BP_TaskAccept();
 
 public:
 	static UDreamTask* Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32> Progress);
@@ -240,4 +255,9 @@ public:
 
 protected:
 	virtual void CompletedTask_Internal();
+	virtual void AcceptTask_Internal();
+	virtual void GoingTask_Internal();
+	virtual void TimeoutTask_Internal();
+	virtual void FailedTask_Internal();
+	virtual void UpdateTaskStatic_Internal(EDreamTaskState NewState);
 };

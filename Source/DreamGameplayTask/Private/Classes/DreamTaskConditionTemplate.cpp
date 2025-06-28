@@ -23,24 +23,13 @@ void UDreamTaskConditionTemplate::SetCount(int32 InValue)
 		OwnerTask->BP_TaskConditionUpdate();
 }
 
-void UDreamTaskConditionTemplate::UpdateByName(TArray<FName> Names)
+void UDreamTaskConditionTemplate::Update()
 {
-	for (auto Element : Names)
-	{
-		if (Element == ConditionName)
-		{
-			SetCount(GetCount() + 1);
-		}
-	}
+	SetCount(GetCount() + 1);
 }
 
-void UDreamTaskConditionTemplate::UpdateByClass(const TArray<TSubclassOf<UDreamTaskConditionTemplate>>& Classes)
+void UDreamTaskConditionTemplate::Reset()
 {
-	for (auto Element : Classes)
-	{
-		if (Element == GetClass())
-		{
-			SetCount(GetCount() + 1);
-		}
-	}
+	SetCount(0);
+	OnConditionUpdate.Broadcast(GetCount());
 }

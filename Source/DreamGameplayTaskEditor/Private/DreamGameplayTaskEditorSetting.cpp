@@ -12,6 +12,7 @@ UDreamGameplayTaskEditorSetting::UDreamGameplayTaskEditorSetting(const FObjectIn
 {
 	CreateTaskClass = UDreamTask::StaticClass();
 	CreateTaskConditionTemplateClass = UDreamTaskConditionTemplate::StaticClass();
+	ManagerFont = FAppStyle::GetFontStyle(TEXT("BoldFont"));
 }
 
 UDreamGameplayTaskEditorSetting* UDreamGameplayTaskEditorSetting::Get()

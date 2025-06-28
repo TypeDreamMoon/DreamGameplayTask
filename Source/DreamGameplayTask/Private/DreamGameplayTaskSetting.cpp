@@ -2,6 +2,7 @@
 
 
 #include "DreamGameplayTaskSetting.h"
+#include "Classes/DreamTask.h"
 
 UDreamGameplayTaskSetting::UDreamGameplayTaskSetting(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -10,4 +11,28 @@ UDreamGameplayTaskSetting::UDreamGameplayTaskSetting(const FObjectInitializer& O
 UDreamGameplayTaskSetting* UDreamGameplayTaskSetting::Get()
 {
 	return GetMutableDefault<UDreamGameplayTaskSetting>();
+}
+
+bool UDreamGameplayTaskSetting::MappingHasTask(TSubclassOf<UDreamTask> InTask)
+{
+	for (auto Element : TaskMapping)
+	{
+		if (InTask == Element.Key)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UDreamGameplayTaskSetting::MakeTaskMapping(UDreamTask* InTask)
+{
+	if (!MappingHasTask(InTask->GetClass()))
+	{
+		TaskMapping.Add(InTask->GetClass(), FGuid::NewGuid());
+		SaveConfig();
+		return true;
+	}
+	return false;
 }

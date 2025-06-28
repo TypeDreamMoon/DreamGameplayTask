@@ -31,4 +31,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "DebugTaskLifeTime")
 	bool bDebugTaskLifeTime = false;
+
+public:
+	bool MappingHasTask(TSubclassOf<UDreamTask> InTask);
+	bool MakeTaskMapping(UDreamTask* InTask);
 };
