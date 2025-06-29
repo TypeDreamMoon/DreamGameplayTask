@@ -234,6 +234,18 @@ int FDreamTaskSpecHandleContainer::SetHandles(const TArray<FDreamTaskSpecHandle>
 	return Handles.Num();
 }
 
+TArray<UDreamTask*> FDreamTaskSpecHandleContainer::BuildTaskArray()
+{
+	TArray<UDreamTask*> Result;
+
+	for (auto DreamTask : GetHandles())
+	{
+		Result.Add(DreamTask.GetTask());
+	}
+
+	return Result;
+}
+
 void FDreamTaskSpecHandleContainer::UpdateHandles(float DeltaTime)
 {
 	if (GetHandles().IsEmpty())

@@ -227,6 +227,8 @@ public:
 	// 设置 Handles
 	int SetHandles(const TArray<FDreamTaskSpecHandle>& InHandles);
 
+	TArray<UDreamTask*> BuildTaskArray();
+
 public:
 	// 更新所有 Handle
 	void UpdateHandles(float DeltaTime);

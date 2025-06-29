@@ -14,7 +14,7 @@
 #include "Factories/DataAssetFactory.h"
 #include "Kismet2/KismetEditorUtilities.h"
 
-UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(TSubclassOf<UObject> Class, FString Name, EBlueprintType BlueprintType)
+UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(UClass* Class, FString Name, EBlueprintType BlueprintType)
 {
 	if (!FKismetEditorUtilities::CanCreateBlueprintOfClass(Class))
 	{
@@ -167,13 +167,13 @@ TArray<FString> FDreamGameplayTaskEditorTools::Conv_DirectoryToStrings(const TAr
 
 bool FDreamGameplayTaskEditorTools::bIsLoadedMemory = false;
 
-void FDreamGameplayTaskEditorTools::LoadAssetToMemory()
+void FDreamGameplayTaskEditorTools::LoadAssetToMemory(UClass* Class)
 {
 	if (bIsLoadedMemory) return;
 
 	bIsLoadedMemory = true;
 
-	UObjectLibrary* ObjectLibrary = UObjectLibrary::CreateLibrary(UDreamTask::StaticClass(), true, GIsEditor);
+	UObjectLibrary* ObjectLibrary = UObjectLibrary::CreateLibrary(Class, true, GIsEditor);
 	ObjectLibrary->AddToRoot();
 
 	TArray<FString> Paths = Conv_DirectoryToStrings(UDreamGameplayTaskEditorSetting::Get()->TaskLoadPaths);
@@ -188,15 +188,15 @@ void FDreamGameplayTaskEditorTools::LoadAssetToMemory()
 	{
 		DGT_ED_FLOG(Log, TEXT("Load Result: Find Path: %s"), *Path);
 	}
-	DGT_ED_FLOG(Log, TEXT("Load Result: Asset: %d Blueprint: %d"), AssetNum, BlueprintNum);
+	DGT_ED_FLOG(Log, TEXT("Load Result: Class: %s Asset: %d Blueprint: %d"), *Class->GetName(), AssetNum, BlueprintNum);
 
 	ObjectLibrary->RemoveFromRoot();
 	return;
 }
 
-TArray<FAssetData> FDreamGameplayTaskEditorTools::GetTaskAssetData()
+TArray<FAssetData> FDreamGameplayTaskEditorTools::GetAssetData(UClass* Class)
 {
-	UObjectLibrary* Library = UObjectLibrary::CreateLibrary(UDreamTask::StaticClass(), true, GIsEditor);
+	UObjectLibrary* Library = UObjectLibrary::CreateLibrary(Class, true, GIsEditor);
 	Library->AddToRoot();
 
 	TArray<FString> Paths = Conv_DirectoryToStrings(UDreamGameplayTaskEditorSetting::Get()->TaskLoadPaths);
@@ -210,8 +210,8 @@ TArray<FAssetData> FDreamGameplayTaskEditorTools::GetTaskAssetData()
 	return Result;
 }
 
-void FDreamGameplayTaskEditorTools::ForceLoadAssetToMemory()
+void FDreamGameplayTaskEditorTools::ForceLoadAssetToMemory(UClass* Class)
 {
 	bIsLoadedMemory = false;
-	LoadAssetToMemory();
+	LoadAssetToMemory(Class);
 }

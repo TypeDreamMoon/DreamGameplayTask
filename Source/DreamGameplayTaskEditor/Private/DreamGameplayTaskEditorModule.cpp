@@ -6,11 +6,10 @@
 #include "DreamGameplayTaskEditorSetting.h"
 #include "DreamGameplayTaskEditorTools.h"
 #include "DreamGameplayTaskEditorStyle.h"
-#include "DreamGameplayTaskManager.h"
+#include "Manager/DreamTaskManager.h"
 #include "LevelEditor.h"
-#include "Classes/DreamTask.h"
-#include "Classes/DreamTaskConditionTemplate.h"
 #include "Classes/DreamTaskType.h"
+#include "Classes/DreamTaskConditionTemplate.h"
 
 #define LOCTEXT_NAMESPACE "FDreamGameplayTaskEditorModule"
 
@@ -128,7 +127,7 @@ void FDreamGameplayTaskEditorModule::RegisterMenu()
 void FDreamGameplayTaskEditorModule::MakeMenu(FMenuBuilder& MenuBuilder)
 {
 	auto Commands = FDreamGameplayTaskEditorCommands::Get();
-	
+
 	MenuBuilder.BeginSection("DGTT_Window", FText::FromString("DGTT_Window"));
 	// Add Window...
 	MenuBuilder.AddMenuEntry(Commands.OpenManager);
@@ -140,7 +139,7 @@ void FDreamGameplayTaskEditorModule::MakeMenu(FMenuBuilder& MenuBuilder)
 	MenuBuilder.AddMenuEntry(Commands.CreateTask);
 	MenuBuilder.AddMenuEntry(Commands.CreateTaskType);
 	MenuBuilder.AddMenuEntry(Commands.CreateCondition);
-	
+
 	MenuBuilder.EndSection();
 }
 

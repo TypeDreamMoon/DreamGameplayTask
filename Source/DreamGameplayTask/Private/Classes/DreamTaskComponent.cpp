@@ -2,9 +2,10 @@
 
 
 #include "Classes/DreamTaskComponent.h"
+
+#include "DreamGameplayTaskLog.h"
 #include "Classes/DreamTask.h"
 #include "Classes/DreamTaskConditionTemplate.h"
-
 
 UDreamTaskComponent::UDreamTaskComponent(const FObjectInitializer& ObjectInitializer)
 {
@@ -14,6 +15,11 @@ UDreamTaskComponent::UDreamTaskComponent(const FObjectInitializer& ObjectInitial
 void UDreamTaskComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UDreamTaskComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
 }
 
 FDreamTaskSpecHandle UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask> InClass, UObject* InPayload)

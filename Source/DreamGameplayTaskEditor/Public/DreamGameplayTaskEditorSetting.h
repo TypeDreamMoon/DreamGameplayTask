@@ -16,12 +16,15 @@ UCLASS(Config = DreamGameplayTaskEditor, DefaultConfig)
 class DREAMGAMEPLAYTASKEDITOR_API UDreamGameplayTaskEditorSetting : public UDeveloperSettings
 {
 	GENERATED_BODY()
+
 public:
 	UDreamGameplayTaskEditorSetting(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
 public:
 	static UDreamGameplayTaskEditorSetting* Get();
 	static void Register();
 	static void Unregistered();
+
 public:
 	virtual FName GetContainerName() const override { return TEXT("Editor"); }
 	virtual FName GetCategoryName() const override { return TEXT("DreamPlugin"); }
@@ -33,18 +36,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "Manager")
 	TSoftClassPtr<UDreamTaskConditionTemplate> CreateTaskConditionTemplateClass;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, meta=(LongPackageName), Category = "Manager")
-	TArray<FDirectoryPath> TaskLoadPaths = { FDirectoryPath(TEXT("/Game")) };
+	TArray<FDirectoryPath> TaskLoadPaths = {FDirectoryPath(TEXT("/Game"))};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "Manager")
 	bool bManagerStartupRefresh = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "Manager|Style")
 	FSlateFontInfo ManagerFont;
-	
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
-	FName ManagerVersion = FName(TEXT("2.3.0"));
+	FName ManagerVersion = FName(TEXT("3.0.0"));
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
 	FName PluginVersion = FName(TEXT("3.0.0"));
