@@ -76,7 +76,7 @@ public:
 
 	// 任务的条件
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= Condition)
-	FDreamTaskCompletedCondition TaskCompletedCondition;
+	FDreamTaskConditionContainer TaskCompletedCondition;
 
 	// 任务的状态
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)

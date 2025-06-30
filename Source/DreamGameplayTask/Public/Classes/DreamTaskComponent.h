@@ -24,14 +24,19 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDelegate, const FDreamTaskSpecHandleContainer&, TaskData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDynamicMulticastDelegate, FDreamTaskSpecHandleContainer&, TaskData);
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTaskListDelegate, FDreamTaskSpecHandleContainer&);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskDelegate, UDreamTask*, Task);
 
 public:
 	// 任务列表更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
-	FTaskListDelegate OnTaskListChanged;
+	FTaskListDynamicMulticastDelegate OnTaskListChanged;
+
+	FTaskListDelegate OnTaskListChangedDelegate;
+
 
 	// 任务更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)

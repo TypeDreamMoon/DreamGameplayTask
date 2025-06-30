@@ -19,11 +19,20 @@ namespace FDreamTaskManagerUtil
 
 #define VB SVerticalBox
 #define HB SHorizontalBox
+#define TB STextBlock
 #define VA(A) .VAlign(A)
 #define HA(A) .HAlign(A)
 #define OSLOT(Opt) + SOverlay::Slot()
 #define HSLOT(Opt) + SHorizontalBox::Slot()
 #define VSLOT(Opt) + SVerticalBox::Slot()
+
+#define BUILD_HEADER(Name, Label) \
+	+SHeaderRow::Column(Name) \
+	.DefaultLabel(Label) \
+	.HAlignHeader(HAlign_Center) \
+	.VAlignHeader(VAlign_Center) \
+	.HAlignCell(HAlign_Left) \
+	.VAlignCell(VAlign_Center)
 	}
 
 #define MARGIN(Value) FMargin(Value)

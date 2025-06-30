@@ -3,6 +3,7 @@
 #include "DreamGameplayTaskEditorSetting.h"
 #include "DreamGameplayTaskEditorTools.h"
 #include "Manager/DreamTaskManager_Util.h"
+#include "Manager/Widgets/DreamTaskManageWidget_ItemRow.h"
 #include "Widgets/Layout/SWidgetSwitcher.h"
 #include "UObject/ObjectSaveContext.h"
 
@@ -239,14 +240,6 @@ TSharedRef<ITableRow> SDreamTaskManagerPage_Manager::OnGenerateRow(FDreamTaskMan
 		.ItemShow(InItem);
 }
 
-#define BUILD_HEADER(Name, Label) \
-	+SHeaderRow::Column(Name) \
-	.DefaultLabel(Label) \
-	.HAlignHeader(HAlign_Center) \
-	.VAlignHeader(VAlign_Center) \
-	.HAlignCell(HAlign_Left) \
-	.VAlignCell(VAlign_Center)
-
 TSharedRef<SHeaderRow> SDreamTaskManagerPage_Manager::MakeHeaderRow()
 {
 	return SNew(SHeaderRow)
@@ -254,7 +247,5 @@ TSharedRef<SHeaderRow> SDreamTaskManagerPage_Manager::MakeHeaderRow()
 			BUILD_HEADER(TEXT("TaskDisplayName"), LOCTEXT("Header_TaskDisplayName", "Task Display Name"))
 			BUILD_HEADER(TEXT("TaskAction"), LOCTEXT("Header_TaskAction", "Task Action"));
 }
-
-#undef BUILD_HEADER
 
 #undef LOCTEXT_NAMESPACE

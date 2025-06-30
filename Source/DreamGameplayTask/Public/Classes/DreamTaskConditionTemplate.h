@@ -35,6 +35,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
 	int32 CompletedCount = 1;
 
+	// 必完成
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
+	bool bTaskMustBeCompleted = false;
+
 	// 条件拥有者
 	UPROPERTY(BlueprintReadOnly, Category = Data)
 	UDreamTask* OwnerTask = nullptr;
@@ -49,6 +53,9 @@ public:
 	// 是否完成
 	UFUNCTION(BlueprintPure, Category = Functions)
 	bool IsCompleted() const;
+
+	UFUNCTION(BlueprintPure, Category = Functions)
+	bool MustTaskBeCompleted() const { return bTaskMustBeCompleted; }
 
 	// 获取数量
 	UFUNCTION(BlueprintPure, Category = Functions)

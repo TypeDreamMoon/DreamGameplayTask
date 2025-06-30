@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "DreamTaskManagerTypes.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Widgets/SCompoundWidget.h"
-
-#include "Manager/DreamTaskManageWidget_ItemRow.h"
+#include "Widgets/DreamTaskManageWidget_ItemRow.h"
 
 class DREAMGAMEPLAYTASKEDITOR_API SDreamTaskManagerPage_Manager : public SCompoundWidget
 {

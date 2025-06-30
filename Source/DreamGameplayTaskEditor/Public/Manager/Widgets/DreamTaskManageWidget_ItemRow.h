@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Classes/DreamTask.h"
 #include "Widgets/Views/STableRow.h"
 
 class UDreamTask;
@@ -24,8 +23,6 @@ public:
 	TSharedRef<UDreamTask*> Task;
 	TSharedRef<UBlueprint*> Blueprint;
 };
-
-typedef TSharedPtr<FDreamTaskManagerRowData> FDreamTaskManagerRowDataPtr;
 
 /**
  * 

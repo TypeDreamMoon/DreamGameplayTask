@@ -1,12 +1,39 @@
 ﻿#include "Manager/DreamTaskManagerPage_Debugger.h"
 
-#include "DreamGameplayTaskEditorLog.h"
-#include "DreamGameplayTaskWorldSubsystem.h"
+#include "ClassViewerModule.h"
+#include "ClassViewerFilter.h"
 #include "Classes/DreamTaskComponent.h"
 #include "Components/WidgetSwitcher.h"
+#include "Kismet2/SClassPickerDialog.h"
 #include "Manager/DreamTaskManager_Util.h"
+#include "Manager/Widgets/DreamTaskManagerDebugger_Detail.h"
 
 #define LOCTEXT_NAMESPACE "DreamTaskManagerPage_Debugger"
+
+
+#define DECODE_TSharedPtr(Var) Var.ToSharedRef().Get()
+
+class FDreamGameplayTaskManagerTaskClassFiler : public IClassViewerFilter
+{
+public:
+	/** All children of these classes will be included unless filtered out by another setting. */
+	TSet<const UClass*> AllowedChildrenOfClasses;
+
+	/** Disallowed class flags. */
+	EClassFlags DisallowedClassFlags = CLASS_None;
+
+	virtual bool IsClassAllowed(const FClassViewerInitializationOptions& InInitOptions, const UClass* InClass, TSharedRef<FClassViewerFilterFuncs> InFilterFuncs) override
+	{
+		return !InClass->HasAnyClassFlags(DisallowedClassFlags)
+			&& InFilterFuncs->IfInChildOfClassesSet(AllowedChildrenOfClasses, InClass) != EFilterReturn::Failed;
+	}
+
+	virtual bool IsUnloadedClassAllowed(const FClassViewerInitializationOptions& InInitOptions, const TSharedRef<const IUnloadedBlueprintData> InUnloadedClassData, TSharedRef<FClassViewerFilterFuncs> InFilterFuncs) override
+	{
+		return !InUnloadedClassData->HasAnyClassFlags(DisallowedClassFlags)
+			&& InFilterFuncs->IfInChildOfClassesSet(AllowedChildrenOfClasses, InUnloadedClassData) != EFilterReturn::Failed;
+	}
+};
 
 void SDreamTaskManagerPage_Debugger::Construct(const FArguments& InArgs)
 {
@@ -56,6 +83,7 @@ void SDreamTaskManagerPage_Debugger::Construct(const FArguments& InArgs)
 							SelectedComponent = Component;
 							ComboBoxSelectedTextBlock->SetText(OnGetComboBoxText());
 							TaskComponentDetail->SetComponent(SelectedComponent);
+							TaskComponentDetail->SetVisibility(EVisibility::Visible);
 						}
 					})
 					[
@@ -63,11 +91,47 @@ void SDreamTaskManagerPage_Debugger::Construct(const FArguments& InArgs)
 						.Text(OnGetComboBoxText())
 					]
 				]
+
+				HSLOT()
+				.Padding(5.f)
+				[
+					SNew(SButton)
+					.Text(LOCTEXT("GiveTask", "Give Task"))
+					.OnClicked_Lambda([this]()
+					{
+						if (!SelectedComponent.IsValid()) return FReply::Handled();
+
+						UClass* Class = UDreamTask::StaticClass();
+						UClass* ChosenClass = UDreamTask::StaticClass();
+
+						FClassViewerInitializationOptions Options;
+						Options.DisplayMode = EClassViewerDisplayMode::Type::TreeView;
+						Options.Mode = EClassViewerMode::ClassPicker;
+						Options.bShowNoneOption = false;
+						Options.bExpandAllNodes = true;
+
+						TSharedPtr<FDreamGameplayTaskManagerTaskClassFiler> Filter = MakeShareable(new FDreamGameplayTaskManagerTaskClassFiler);
+						Options.ClassFilters.Add(Filter.ToSharedRef());
+
+						Filter->DisallowedClassFlags = CLASS_Deprecated | CLASS_NewerVersionExists | CLASS_Abstract | CLASS_HideDropDown;
+						Filter->AllowedChildrenOfClasses.Add(Class);
+
+						const FText TitleText = LOCTEXT("GiveTask", "Pick Task Class");
+						SClassPickerDialog::PickClass(TitleText, Options, ChosenClass, Class);
+
+						DECODE_TSharedPtr(SelectedComponent)->GiveTaskByClass(ChosenClass);
+
+						return FReply::Handled();
+					})
+				]
 			]
 
 			VSLOT()
+			HA(HFILL)
+			VA(VFILL)
 			[
-				SAssignNew(TaskComponentDetail, SDreamTaskManagerPage_Debugger_Detail)
+				SAssignNew(TaskComponentDetail, SDreamTaskManagerDebugger_Detail)
+				.Visibility(EVisibility::Collapsed)
 			]
 		]
 	];
@@ -107,6 +171,7 @@ void SDreamTaskManagerPage_Debugger::EndPIE(const bool bIsSimulating)
 	SelectedComponent = nullptr;
 	TaskComponents.Empty();
 	TaskComponentComboBox->SetSelectedItem(nullptr);
+	TaskComponentDetail->SetVisibility(EVisibility::Collapsed);
 }
 
 void SDreamTaskManagerPage_Debugger::HandleUpdate()
@@ -134,17 +199,6 @@ FText SDreamTaskManagerPage_Debugger::OnGetComboBoxText()
 	                    MAKE_TEXT(TEXT("%s -> %s"), *SelectedComponent.ToSharedRef().Get()->GetOwner()->GetName(), *SelectedComponent.ToSharedRef().Get()->GetName()),
 	                    MAKE_TEXT(TEXT("No Selected")));
 	return Text;
-}
-
-void SDreamTaskManagerPage_Debugger_Detail::Construct(const FArguments& InArgs)
-{
-	ChildSlot[
-		SNew(STextBlock)
-	];
-}
-
-void SDreamTaskManagerPage_Debugger_Detail::SetComponent(FSharedTaskComponent InComponent)
-{
 }
 
 

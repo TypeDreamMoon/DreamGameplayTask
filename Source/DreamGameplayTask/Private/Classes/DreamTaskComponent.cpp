@@ -32,6 +32,7 @@ FDreamTaskSpecHandle UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask
 		Task->InitializeTask(this, InPayload);
 		FDreamTaskSpecHandle& SpecHandle = TaskData.AddHandle(FDreamTaskSpecHandle(Task, FDateTime::Now()));
 		OnTaskListChanged.Broadcast(TaskData);
+		OnTaskListChangedDelegate.Broadcast(TaskData);
 		return SpecHandle;
 	}
 
@@ -43,6 +44,7 @@ void UDreamTaskComponent::InitializeTaskList(FDreamTaskSpecHandleContainer NewLi
 	TaskData.ClearHandles();
 	TaskData.SetHandles(NewList.GetHandles());
 	OnTaskListChanged.Broadcast(TaskData);
+	OnTaskListChangedDelegate.Broadcast(TaskData);
 }
 
 bool UDreamTaskComponent::HasTaskByClass(TSubclassOf<UDreamTask> InCheckTaskClass)
@@ -69,6 +71,7 @@ bool UDreamTaskComponent::RemoveTaskByClass(TSubclassOf<UDreamTask> InRemoveTask
 		{
 			TaskData.RemoveHandle(Element);
 			OnTaskListChanged.Broadcast(TaskData);
+			OnTaskListChangedDelegate.Broadcast(TaskData);
 			return true;
 		}
 	}
@@ -84,6 +87,7 @@ bool UDreamTaskComponent::RemoveTaskByName(FName InRemoveTaskName)
 		{
 			TaskData.RemoveHandle(Element);
 			OnTaskListChanged.Broadcast(TaskData);
+			OnTaskListChangedDelegate.Broadcast(TaskData);
 			return true;
 		}
 	}
