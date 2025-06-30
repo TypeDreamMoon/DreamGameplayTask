@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Manager/DreamTaskManagerTypes.h"
 #include "Widgets/Views/STableRow.h"
 
 class UDreamTask;

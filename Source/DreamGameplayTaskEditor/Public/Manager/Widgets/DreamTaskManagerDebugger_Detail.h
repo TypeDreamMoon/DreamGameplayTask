@@ -28,6 +28,7 @@ public:
 
 	TSharedRef<ITableRow> OnGenerateRow(FDreamTaskSpecHandlePtr InItem, const TSharedRef<STableViewBase>& OwnerTable);
 	TSharedRef<SHeaderRow> MakeHeaderRow();
+	void Refresh();
 
 private:
 	FSharedTaskComponent TaskComponent;
