@@ -4,6 +4,7 @@
 #include "Classes/DreamTaskComponent.h"
 
 #include "DreamGameplayTaskLog.h"
+#include "DreamGameplayTaskSetting.h"
 #include "Classes/DreamTask.h"
 #include "Classes/DreamTaskConditionTemplate.h"
 
@@ -127,17 +128,20 @@ const FDreamTaskSpecHandle& UDreamTaskComponent::GetTaskByName(FName InTaskName)
 
 void UDreamTaskComponent::ActiveTimer()
 {
+	DGT_DEBUG_LOG(Log, TEXT("Timer Active."))
 	GetOwner()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
 }
 
 void UDreamTaskComponent::Updater()
 {
+	DGT_DEBUG_LOG(Log, TEXT("Update Handles."))
 	TaskData.UpdateHandles(TimerDeltaTime);
 
 	if (bTimerAutomation)
 	{
 		if (TaskData.IsAllCompleted() || TaskData.IsEmpty())
 		{
+			DGT_DEBUG_LOG(Log, TEXT("Handle is All Completed or Empty. TimerAutomation Have helped turn off the timer."))
 			GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		}
 	}

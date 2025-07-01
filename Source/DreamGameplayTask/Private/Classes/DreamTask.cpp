@@ -3,6 +3,8 @@
 
 #include "Classes/DreamTask.h"
 
+#include "DreamGameplayTaskLog.h"
+#include "DreamGameplayTaskSetting.h"
 #include "Classes/DreamTaskConditionTemplate.h"
 #include "Classes/DreamTaskInterface.h"
 #include "Classes/DreamTaskComponent.h"
@@ -14,8 +16,10 @@ UDreamTask::UDreamTask(const FObjectInitializer& ObjectInitializer) : Super(Obje
 
 void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* InPayload)
 {
+	DGT_DEBUG_LOG(Log, TEXT("Task initialize. Name: %s"), *TaskName.ToString())
+
 	// Start Pre Initialize.
-	
+
 	OwnerComponent = InOwnerComponent;
 	Payload = InPayload;
 
@@ -25,13 +29,17 @@ void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* 
 	}
 
 	// Pre Initialized Successful. Start Post Initialize
-	
+
 	for (auto Element : GetRelatedActors())
 	{
 		Cast<IDreamTaskInterface>(Element)->Execute_TaskInitialize(Element, this);
 	}
 
 	BP_TaskInitialize();
+
+	// Post Initialize Successful. Start Begin
+
+	SetTaskState(TaskState);
 }
 
 UDreamTaskConditionTemplate* UDreamTask::GetTaskCondition(FName ConditionName)
@@ -71,7 +79,7 @@ TArray<AActor*> UDreamTask::GetRelatedActors()
 
 void UDreamTask::UpdateTaskByName(TArray<FName> ConditionNames)
 {
-	if (TaskState & (EDreamTaskState::EDTS_Accept | EDreamTaskState::EDTS_Going))
+	if (EnumHasAnyFlags(TaskState, (EDreamTaskState::EDTS_Accept | EDreamTaskState::EDTS_Going)))
 	{
 		for (auto Element : ConditionNames)
 		{
@@ -208,6 +216,7 @@ void UDreamTask::FailedTask_Internal()
 	BP_TaskFailed();
 }
 
+// TODO : Updater 待更新
 void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 {
 	TaskState = NewState;
@@ -218,25 +227,28 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 	OwnerComponent->OnTaskStateUpdate.Broadcast(this);
 	BP_TaskUpdate();
 
-	if (NewState & EDreamTaskState::EDTS_Accept)
+	// DGT_DEBUG_LOG(Log, TEXT("NewState : %s"), *UEnum::GetValueAsString(NewState))
+	// DGT_DEBUG_LOG(Log, TEXT("EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Accept) : %d"), EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Accept))
+
+	if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Accept))
 	{
 		AcceptTask_Internal();
 		GetOwnerComponent()->ActiveTimer();
 	}
-	else if (NewState & EDreamTaskState::EDTS_Completed)
+	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Completed))
 	{
 		CompletedTask_Internal();
 	}
-	else if (NewState & EDreamTaskState::EDTS_Failed)
+	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Failed))
 	{
 		FailedTask_Internal();
 	}
-	else if (NewState & EDreamTaskState::EDTS_Going)
+	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Going))
 	{
 		GoingTask_Internal();
 		GetOwnerComponent()->ActiveTimer();
 	}
-	else if (NewState & EDreamTaskState::EDTS_Timeout)
+	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Timeout))
 	{
 		TimeoutTask_Internal();
 	}

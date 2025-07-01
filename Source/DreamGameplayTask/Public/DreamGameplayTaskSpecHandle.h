@@ -6,28 +6,52 @@
 class UDreamTaskConditionTemplate;
 class UDreamTaskComponent;
 class UDreamTask;
+
 /**
  *  Task State
  */
-UENUM(BlueprintType)
+UENUM(BlueprintType, Meta=(Bitflags, UseEnumValuesAsMaskValuesInEditor=true))
 enum class EDreamTaskState : uint8
 {
-	EDTS_Accept = 0 UMETA(DisplayName = "Accept"),
-	EDTS_Going = 1 << 0 UMETA(DisplayName = "Going"),
-	EDTS_Completed = 1 << 1 UMETA(DisplayName = "Completed"),
-	EDTS_Failed = 1 << 2 UMETA(DisplayName = "Failed"),
-	EDTS_Timeout = 1 << 3 UMETA(DisplayName = "Timeout"),
+	EDTS_None			=		0		UMETA(DisplayName = "None"),
+	EDTS_Accept			=		1 << 0	UMETA(DisplayName = "Accept"),
+	EDTS_Going			=		1 << 1	UMETA(DisplayName = "Going"),
+	EDTS_Completed		=		1 << 2	UMETA(DisplayName = "Completed"),
+	EDTS_Failed			=		1 << 3	UMETA(DisplayName = "Failed"),
+	EDTS_Timeout		=		1 << 4	UMETA(DisplayName = "Timeout"),
 };
 
-inline EDreamTaskState operator|(EDreamTaskState A, EDreamTaskState B)
-{
-	return static_cast<EDreamTaskState>(static_cast<uint8>(A) | static_cast<uint8>(B));
-}
+ENUM_CLASS_FLAGS(EDreamTaskState)
 
-inline bool operator&(EDreamTaskState A, EDreamTaskState B)
-{
-	return static_cast<uint8>(A) & static_cast<uint8>(B);
-}
+/* EnumHasAllFlags EnumHasAnyFlags  EnumAddFlags EnumRemoveFlags
+ *	template<typename Enum>
+	constexpr bool EnumHasAllFlags(Enum Flags, Enum Contains)
+	{
+		using UnderlyingType = __underlying_type(Enum);
+		return ((UnderlyingType)Flags & (UnderlyingType)Contains) == (UnderlyingType)Contains;
+	}
+
+	template<typename Enum>
+	constexpr bool EnumHasAnyFlags(Enum Flags, Enum Contains)
+	{
+		using UnderlyingType = __underlying_type(Enum);
+		return ((UnderlyingType)Flags & (UnderlyingType)Contains) != 0;
+	}
+
+	template<typename Enum>
+	void EnumAddFlags(Enum& Flags, Enum FlagsToAdd)
+	{
+		using UnderlyingType = __underlying_type(Enum);
+		Flags = (Enum)((UnderlyingType)Flags | (UnderlyingType)FlagsToAdd);
+	}
+
+	template<typename Enum>
+	void EnumRemoveFlags(Enum& Flags, Enum FlagsToRemove)
+	{
+		using UnderlyingType = __underlying_type(Enum);
+		Flags = (Enum)((UnderlyingType)Flags & ~(UnderlyingType)FlagsToRemove);
+	}
+*/
 
 /**
  * @struct FDreamTaskSpecHandle

@@ -87,27 +87,55 @@ public:
 	TObjectPtr<UObject> Payload = nullptr;
 
 public:
-	// 获取条件名称
+	/**
+	 * 获取任务的唯一名称标识
+	 * @return FName 返回任务的唯一名称标识符
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	FName GetTaskName() const { return TaskName; }
 
+	/**
+	 * 获取任务的显示名称(可本地化)
+	 * @return FText 返回任务的显示名称
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	FText GetTaskDisplayName() const { return TaskDisplayName; }
 
+	/**
+	 * 获取任务的描述信息 
+	 * @return FText 返回任务的描述文本
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	FText GetTaskDesc() const { return TaskDesc; }
 
+	/**
+	 * 获取任务所属的类型
+	 * @return UDreamTaskType* 返回任务类型对象指针
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	UDreamTaskType* GetTaskType() const { return TaskType; }
 
+	/**
+	 * 获取任务的当前状态
+	 * @return EDreamTaskState 返回任务状态枚举值
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	EDreamTaskState GetTaskState() const { return TaskState; }
 
+	/**
+	 * 获取任务所属的任务组件
+	 * @return UDreamTaskComponent* 返回拥有该任务的任务组件
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	UDreamTaskComponent* GetOwnerComponent() const { return OwnerComponent; }
 
+	/**
+	 * 获取任务的附加数据
+	 * @return UObject* 返回任务的附加数据对象
+	 */
 	UFUNCTION(BlueprintPure, Category = Functions)
 	UObject* GetPayload() const { return Payload; }
+
 
 	// --------------- Condition ---------------
 
@@ -177,14 +205,14 @@ public:
 	 * @return 任务是否完成
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	bool IsCompleted() const { return TaskState & EDreamTaskState::EDTS_Completed; }
+	bool IsCompleted() const { return EnumHasAnyFlags(TaskState, EDreamTaskState::EDTS_Completed); }
 
 	/**
 	 * 任务是否失败
 	 * @return 任务是否失败
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
-	bool IsFailed() const { return TaskState & EDreamTaskState::EDTS_Failed; }
+	bool IsFailed() const { return EnumHasAnyFlags(TaskState, EDreamTaskState::EDTS_Failed); }
 
 	/**
 	 * 重置任务

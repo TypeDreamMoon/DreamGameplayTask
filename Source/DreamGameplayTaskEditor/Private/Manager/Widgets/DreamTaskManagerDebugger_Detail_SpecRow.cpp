@@ -60,10 +60,10 @@ TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForC
 			.Padding(LOCPADDING / 2.f)
 			[
 				SNew(TB)
-				.Text(MAKE_FORMATTED_TEXT(LOCTEXT("ConditionTitle", "Condition Number: %s"),
+				.Text(MAKE_FORMATTED_TEXT(LOCTEXT("ConditionTitle", "Condition Number: {0}"),
 				                          FText::AsNumber(Handle->GetTaskConditions().Num())))
 			]
-		];
+		].AutoHeight();
 
 		for (auto Condition : Handle->GetTask()->TaskCompletedCondition.Conditions)
 		{
@@ -79,7 +79,7 @@ TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForC
 						SNew(TB)
 						.Text(MAKE_FORMATTED_TEXT(
 								LOCTEXT("Condition",
-									"> ID : {0} Display Name : {1} Progress : {2} / {3} Must Be Completed : %s"),
+									"> ID : {0} Display Name : {1} Progress : {2} / {3} Must Be Completed : {4}"),
 								FText::FromString(Condition.Key.ToString()),
 								FText::FromString(Condition.Value->ConditionDisplayName.ToString()),
 								FText::AsNumber(Condition.Value->GetCount()),
@@ -89,7 +89,7 @@ TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForC
 						)
 					]
 				]
-			];
+			].AutoHeight();
 		}
 
 		VBox->AddSlot()
@@ -99,11 +99,11 @@ TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForC
 			.Padding(LOCPADDING / 2.f)
 			[
 				SNew(TB)
-				.Text(MAKE_FORMATTED_TEXT(LOCTEXT("ConditionTool", "Completed Mode : %s"),
+				.Text(MAKE_FORMATTED_TEXT(LOCTEXT("ConditionTool", "Completed Mode : {0}"),
 				                          StaticEnum<EDreamTaskConditionalCompletionMode>()->GetDisplayValueAsText(
 					                          Handle->GetTask()->TaskCompletedCondition.CompletionMode))				)
 			]
-		];
+		].AutoHeight();
 
 		return VBox;
 	}

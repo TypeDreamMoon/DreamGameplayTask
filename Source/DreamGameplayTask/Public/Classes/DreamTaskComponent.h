@@ -52,12 +52,12 @@ public:
 	FDreamTaskSpecHandleContainer TaskData;
 
 	// 当任务列表无任务/任务全部完成时 自动关闭定时器
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bTimerAutomation = true;
 
 	// 定时器间隔
-	UPROPERTY(BlueprintReadOnly)
-	float TimerDeltaTime = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float TimerDeltaTime = 0.01f;
 
 public:
 	/**
@@ -94,7 +94,7 @@ public:
 
 	/**
 	 * 移除任务 (Class)
-	 * @param InRemoveTaskName 要移除的任务名称
+	 * @param InRemoveTaskClass 要移除的任务名称
 	 * @return 是否成功移除
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
