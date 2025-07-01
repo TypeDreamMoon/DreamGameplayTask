@@ -27,14 +27,14 @@ public:
 	void BeginPIE(const bool bIsSimulating);
 	void EndPIE(const bool bIsSimulating);
 
-	void HandleUpdate();
+	void HandleUpdateComponentPicker();
 
-	FText OnGetComboBoxText();
+	FText OnGetPickerText();
 
 protected:
 	TSharedPtr<SWidgetSwitcher> WidgetSwitcher;
-	TSharedPtr<STextBlock> ComboBoxSelectedTextBlock;
-	TSharedPtr<SComboBox<FSharedTaskComponent>> TaskComponentComboBox;
+	TSharedPtr<STextBlock> TaskComponentPickerTextBlock;
+	TSharedPtr<SComboBox<FSharedTaskComponent>> TaskComponentPicker;
 	TSharedPtr<SDreamTaskManagerDebugger_Detail> TaskComponentDetail;
 	TArray<FSharedTaskComponent> TaskComponents;
 	FSharedTaskComponent SelectedComponent;

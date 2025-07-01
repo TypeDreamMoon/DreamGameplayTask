@@ -29,4 +29,5 @@ protected:
 	TSharedPtr<SDreamTaskManagerPage_Debugger> Page_Debugger;
 	TSharedPtr<SDreamTaskManagerPage_Manager> Page_Manager;
 	TSharedPtr<SWidgetSwitcher> PageSwitcher;
+	void OnNavigateHyperlink(FString URL);
 };

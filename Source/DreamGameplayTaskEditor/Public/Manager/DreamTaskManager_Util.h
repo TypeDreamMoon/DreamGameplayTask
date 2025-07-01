@@ -40,8 +40,10 @@ namespace FDreamTaskManagerUtil
 #define GET_STYLE_BRUSH(BrushName) GET_STYLE->GetBrush(TEXT("DreamGameplayTaskEditor." BrushName))
 #define SELECT(Condition, True, False) Condition ? True : False
 #define MAKE_FORMATTED_TEXT(Text, ...) FText::Format(Text, ##__VA_ARGS__)
+#define GET_TSharedPtr(Var) Var.ToSharedRef().Get()
 
-	DREAMGAMEPLAYTASKEDITOR_API TSharedRef<SHorizontalBox> MakeIconAndTextWidget(const FText& Text, const FSlateBrush* IconBrush, int IconSize = 16.0f, float FontSize = 10.0f);
+	DREAMGAMEPLAYTASKEDITOR_API TSharedRef<SHorizontalBox> MakeIconAndTextWidget(
+		const FText& Text, const FSlateBrush* IconBrush, int IconSize = 16.0f, float FontSize = 10.0f);
 	DREAMGAMEPLAYTASKEDITOR_API FSlateFontInfo GetTextFont(float Size = 10.0f);
 	DREAMGAMEPLAYTASKEDITOR_API TSharedRef<SWidget> MakeText(const FText& InText);
 	DREAMGAMEPLAYTASKEDITOR_API TSharedRef<SWidget> MakeText(const FString& InString);

@@ -14,14 +14,24 @@ UDreamTask::UDreamTask(const FObjectInitializer& ObjectInitializer) : Super(Obje
 
 void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* InPayload)
 {
+	// Start Pre Initialize.
+	
 	OwnerComponent = InOwnerComponent;
 	Payload = InPayload;
 
-	BP_TaskInitialize();
+	for (TPair<FName, UDreamTaskConditionTemplate*>& Condition : TaskCompletedCondition.GetConditionMapping())
+	{
+		Condition.Value->InitializeCondition(this);
+	}
+
+	// Pre Initialized Successful. Start Post Initialize
+	
 	for (auto Element : GetRelatedActors())
 	{
 		Cast<IDreamTaskInterface>(Element)->Execute_TaskInitialize(Element, this);
 	}
+
+	BP_TaskInitialize();
 }
 
 UDreamTaskConditionTemplate* UDreamTask::GetTaskCondition(FName ConditionName)
@@ -31,7 +41,15 @@ UDreamTaskConditionTemplate* UDreamTask::GetTaskCondition(FName ConditionName)
 
 bool UDreamTask::CheckTaskCompleted()
 {
-	return TaskCompletedCondition.IsConditionsCompleted();
+	if (TaskCompletedCondition.IsConditionsCompleted())
+	{
+		SetTaskState(EDreamTaskState::EDTS_Completed);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 TArray<AActor*> UDreamTask::GetRelatedActors()

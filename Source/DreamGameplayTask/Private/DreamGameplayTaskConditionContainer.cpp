@@ -1,5 +1,8 @@
 ﻿#include "DreamGameplayTaskConditionContainer.h"
 
+#include "DreamGameplayTaskLog.h"
+#include "DreamGameplayTaskSetting.h"
+#include "DreamGameplayTaskSpecHandle.h"
 #include "Classes/DreamTaskConditionTemplate.h"
 
 UDreamTaskConditionTemplate* FDreamTaskConditionContainer::GetConditionByName(FName InConditionName) const
@@ -22,6 +25,11 @@ TArray<UDreamTaskConditionTemplate*> FDreamTaskConditionContainer::GetConditions
 	return Result;
 }
 
+TMap<FName, UDreamTaskConditionTemplate*>& FDreamTaskConditionContainer::GetConditionMapping()
+{
+	return Conditions;
+}
+
 bool FDreamTaskConditionContainer::UpdateConditionByName(FName InConditionName)
 {
 	UDreamTaskConditionTemplate* Condition = GetConditionByName(InConditionName);
@@ -38,6 +46,8 @@ int FDreamTaskConditionContainer::ConditionCompletedCount() const
 	int Count = 0;
 	for (auto Element : Conditions)
 	{
+		DGT_DEBUG_LOG(Log, TEXT("Element.Value->IsCompleted() >>> %d.GetCount() >>> %d"), Element.Value->IsCompleted(), Element.Value->GetCount())
+		
 		if (Element.Value->IsCompleted())
 		{
 			Count++;
@@ -56,29 +66,33 @@ bool FDreamTaskConditionContainer::IsConditionsCompleted() const
 {
 	int CompletedCount = ConditionCompletedCount();
 
-	// 未完成
+	DGT_DEBUG_LOG(Log, TEXT("Count : %d"), CompletedCount);
+
 	if (CompletedCount == TASK_CONDITION_NOT_COMPLETED)
 	{
 		return false;
 	}
 
-	// 自定义
-	if (CompletionMode == EDreamTaskConditionalCompletionMode::EDTCCM_Custom)
-	{
-		return CompletedCount >= CustomConditionCount;
-	}
+	DGT_DEBUG_LOG(Log, TEXT("Completed Mode : %s"),
+	              *StaticEnum<EDreamTaskState>()->GetDisplayValueAsText(CompletionMode).ToString())
 
-	// 任意
-	if (CompletionMode == EDreamTaskConditionalCompletionMode::EDTCCM_Any)
+	switch (CompletionMode)
 	{
-		return CompletedCount > 0;
-	}
-
-	// 全部
-	if (CompletionMode == EDreamTaskConditionalCompletionMode::EDTCCM_All)
-	{
+	case EDreamTaskConditionalCompletionMode::EDTCCM_All:
+		DGT_LOG(Log, TEXT("All -> %d "), CompletedCount == Conditions.Num());
 		return CompletedCount == Conditions.Num();
+		break;
+	case EDreamTaskConditionalCompletionMode::EDTCCM_Any:
+		DGT_DEBUG_LOG(Log, TEXT("Any -> %d "), CompletedCount > 0)
+		return CompletedCount > 0;
+		break;
+	case EDreamTaskConditionalCompletionMode::EDTCCM_Custom:
+		DGT_DEBUG_LOG(Log, TEXT("Custom -> %d"), CompletedCount >= CustomConditionCount)
+		return CompletedCount >= CustomConditionCount;
+		break;
 	}
+
+	DGT_DEBUG_LOG(Error, TEXT("Not Found"))
 
 	return false;
 }

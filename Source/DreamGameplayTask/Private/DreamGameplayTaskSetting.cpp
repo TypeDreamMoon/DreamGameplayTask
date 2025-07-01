@@ -4,7 +4,8 @@
 #include "DreamGameplayTaskSetting.h"
 #include "Classes/DreamTask.h"
 
-UDreamGameplayTaskSetting::UDreamGameplayTaskSetting(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UDreamGameplayTaskSetting::UDreamGameplayTaskSetting(const FObjectInitializer& ObjectInitializer) : Super(
+	ObjectInitializer)
 {
 }
 
@@ -35,4 +36,16 @@ bool UDreamGameplayTaskSetting::MakeTaskMapping(UDreamTask* InTask)
 		return true;
 	}
 	return false;
+}
+
+bool UDreamGameplayTaskSetting::GetEnableDebug()
+{
+	if (Get())
+	{
+		return Get()->bEnableDebug;
+	}
+	else
+	{
+		return false;
+	}
 }

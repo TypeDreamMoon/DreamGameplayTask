@@ -94,6 +94,7 @@ void SDreamTaskManagerPage_Manager::Construct(const FArguments& InArgs)
 					.OnGenerateRow(this, &SDreamTaskManagerPage_Manager::OnGenerateRow)
 					.ListItemsSource(&List)
 					.HeaderRow(MakeHeaderRow())
+					.SelectionMode(ESelectionMode::Type::Single)
 				] // End Page 1 Task list
 
 				+ SWidgetSwitcher::Slot() // Page 2 Error Text
@@ -245,7 +246,7 @@ TSharedRef<SHeaderRow> SDreamTaskManagerPage_Manager::MakeHeaderRow()
 	return SNew(SHeaderRow)
 			BUILD_HEADER(TEXT("TaskName"), LOCTEXT("Header_TaskName", "Task Name"))
 			BUILD_HEADER(TEXT("TaskDisplayName"), LOCTEXT("Header_TaskDisplayName", "Task Display Name"))
-			BUILD_HEADER(TEXT("TaskAction"), LOCTEXT("Header_TaskAction", "Task Action"));
+			BUILD_HEADER(TEXT("TaskAction"), LOCTEXT("Header_TaskAction", "Task Action")).HAlignCell(HFILL).VAlignCell(VFILL);
 }
 
 #undef LOCTEXT_NAMESPACE

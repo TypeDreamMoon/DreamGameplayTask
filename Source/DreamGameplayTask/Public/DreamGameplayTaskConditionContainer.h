@@ -54,7 +54,9 @@ public:
 	 * 可编辑，蓝图只读，归类为Condition类别
 	 * 仅在CompletionMode为EDTCCM_Custom时显示编辑控件
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition, meta = (EditCondition = "CompletionMode == EDreamTaskConditionalCompletionMode::EDTCCM_Custom", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition,
+		meta = (EditCondition = "CompletionMode == EDreamTaskConditionalCompletionMode::EDTCCM_Custom",
+			EditConditionHides))
 	int CustomConditionCount = 1;
 
 public:
@@ -70,6 +72,12 @@ public:
 	 * @return 包含所有任务条件模板对象的数组
 	 */
 	TArray<UDreamTaskConditionTemplate*> GetConditions();
+
+	/**
+	 * @brief 获取任务条件映射表
+	 * @return 任务条件映射表
+	 */
+	TMap<FName, UDreamTaskConditionTemplate*>& GetConditionMapping();
 
 	/**
 	 * @brief 更新指定名称的任务条件

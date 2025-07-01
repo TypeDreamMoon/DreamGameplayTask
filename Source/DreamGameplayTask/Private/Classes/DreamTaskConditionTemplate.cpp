@@ -5,6 +5,11 @@
 
 #include "Classes/DreamTask.h"
 
+UDreamTaskConditionTemplate::UDreamTaskConditionTemplate(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
 bool UDreamTaskConditionTemplate::BP_CompletedCondition_Implementation()
 {
 	return IsCompleted();
@@ -18,9 +23,14 @@ bool UDreamTaskConditionTemplate::IsCompleted() const
 void UDreamTaskConditionTemplate::SetCount(int32 InValue)
 {
 	Count = FMath::Clamp(InValue, 0, GetCompletedCount());
+
 	OnConditionUpdate.Broadcast(GetCount());
+
 	if (OwnerTask)
+	{
+		OwnerTask->CheckTaskCompleted();
 		OwnerTask->BP_TaskConditionUpdate();
+	}
 }
 
 void UDreamTaskConditionTemplate::Update()
@@ -32,4 +42,9 @@ void UDreamTaskConditionTemplate::Reset()
 {
 	SetCount(0);
 	OnConditionUpdate.Broadcast(GetCount());
+}
+
+void UDreamTaskConditionTemplate::InitializeCondition(UDreamTask* InTask)
+{
+	OwnerTask = InTask;
 }

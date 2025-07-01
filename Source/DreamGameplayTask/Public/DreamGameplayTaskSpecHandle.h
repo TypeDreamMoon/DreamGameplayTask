@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "DreamGameplayTaskSpecHandle.generated.h"
 
+class UDreamTaskConditionTemplate;
 class UDreamTaskComponent;
 class UDreamTask;
 /**
@@ -125,6 +126,12 @@ public:
 	 * @return 返回FDateTime时间对象
 	 */
 	FDateTime GetEndTime() const;
+
+	/**
+	 * @brief 获取任务条件映射
+	 * @return 任务条件映射
+	 */
+	TMap<FName, UDreamTaskConditionTemplate*>& GetTaskConditions();
 
 	/**
 	 * @brief 检查是否使用最大时间限制

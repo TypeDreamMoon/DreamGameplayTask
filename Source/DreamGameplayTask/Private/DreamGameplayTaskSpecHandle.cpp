@@ -8,7 +8,8 @@ FDreamTaskSpecHandle::FDreamTaskSpecHandle()
 }
 
 FDreamTaskSpecHandle::FDreamTaskSpecHandle(TObjectPtr<UDreamTask> InTask, FDateTime InStartTime)
-	: Guid(FGuid::NewGuid()), Task(InTask), OwnerComponent(InTask->GetOwnerComponent()), StartTime(InStartTime), RunningTime(0.f), EndTime(0.f)
+	: Guid(FGuid::NewGuid()), Task(InTask), OwnerComponent(InTask->GetOwnerComponent()), StartTime(InStartTime),
+	  RunningTime(0.f), EndTime(0.f)
 {
 	StartTime = InStartTime;
 	Task = InTask;
@@ -40,6 +41,11 @@ FDateTime FDreamTaskSpecHandle::GetStartTime() const
 FDateTime FDreamTaskSpecHandle::GetEndTime() const
 {
 	return EndTime;
+}
+
+TMap<FName, UDreamTaskConditionTemplate*>& FDreamTaskSpecHandle::GetTaskConditions()
+{
+	return GetTask()->TaskCompletedCondition.GetConditionMapping();
 }
 
 bool FDreamTaskSpecHandle::IsUseMaximumTime() const

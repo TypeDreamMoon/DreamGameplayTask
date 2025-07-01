@@ -16,6 +16,8 @@ class DREAMGAMEPLAYTASK_API UDreamTaskConditionTemplate : public UObject
 	GENERATED_BODY()
 
 public:
+	UDreamTaskConditionTemplate(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskConditionNumDelegate, int, Num);
 
 public:
@@ -77,6 +79,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void Reset();
 
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void InitializeCondition(UDreamTask* InTask);
 public:
 	// 条件更新事件
 	UPROPERTY(BlueprintAssignable, Category = Delegates)

@@ -3,8 +3,10 @@
 
 #include "Manager/DreamTaskManager.h"
 
+#include "DreamGameplayTaskEditorSetting.h"
 #include "SlateOptMacros.h"
 #include "Components/WidgetSwitcher.h"
+#include "Widgets/Input/SHyperlink.h"
 #include "Manager/DreamTaskManager_Util.h"
 #include "Manager/DreamTaskManagerPage_Debugger.h"
 #include "Manager/DreamTaskManagerPage_Manager.h"
@@ -45,7 +47,7 @@ void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 				HSLOT()
 				HA(HRIGHT)
 				VA(VFILL)
-				.Padding(2.f)
+				.Padding(5.f)
 				[
 					SNew(HB)
 
@@ -81,7 +83,8 @@ void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 				]
 			] // End Header
 
-			VSLOT()
+			VSLOT() // Start Content
+			.Padding(5.f)
 			HA(HFILL)
 			VA(VFILL)
 			[
@@ -96,9 +99,41 @@ void SDreamGameplayTaskManager::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(Page_Debugger, SDreamTaskManagerPage_Debugger)
 				]
+			] // End Content
+
+			VSLOT()
+			.Padding(5.f)
+			.AutoHeight()
+			HA(HFILL)
+			[
+				SNew(HB)
+
+				HSLOT()
+				HA(HLEFT)
+				[
+					SNew(TB)
+					.Text(MAKE_FORMATTED_TEXT(LOCTEXT("Version", "Version : P{0}M{1}D{2}"),
+					                          FText::FromName(UDreamGameplayTaskEditorSetting::Get()->PluginVersion),
+					                          FText::FromName(UDreamGameplayTaskEditorSetting::Get()->ManagerVersion),
+					                          FText::FromName(UDreamGameplayTaskEditorSetting::Get()->DebuggerVersion))					)
+				]
+
+				HSLOT()
+				HA(HRIGHT)
+				[
+					SNew(SHyperlink)
+					.Text(MAKE_TEXT(TEXT("Powered By Dream Moon & 晓桀")))
+					.OnNavigate(this, &SDreamGameplayTaskManager::OnNavigateHyperlink,
+					            FString(TEXT("https://dmstudio.top")))
+				]
 			]
 		]
 	];
+}
+
+void SDreamGameplayTaskManager::OnNavigateHyperlink(FString URL)
+{
+	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

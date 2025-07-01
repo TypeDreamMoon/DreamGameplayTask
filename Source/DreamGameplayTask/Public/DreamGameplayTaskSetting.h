@@ -20,6 +20,7 @@ class DREAMGAMEPLAYTASK_API UDreamGameplayTaskSetting : public UDeveloperSetting
 public:
 	UDreamGameplayTaskSetting(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	static UDreamGameplayTaskSetting* Get();
+
 public:
 	virtual FName GetContainerName() const override { return FName(TEXT("Project")); }
 	virtual FName GetCategoryName() const override { return FName(TEXT("DreamPlugin")); }
@@ -32,7 +33,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "DebugTaskLifeTime")
 	bool bDebugTaskLifeTime = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Debug")
+	bool bEnableDebug = false;
+
 public:
 	bool MappingHasTask(TSubclassOf<UDreamTask> InTask);
 	bool MakeTaskMapping(UDreamTask* InTask);
+	static bool GetEnableDebug();
 };

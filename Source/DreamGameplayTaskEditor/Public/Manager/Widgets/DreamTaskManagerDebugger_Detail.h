@@ -20,6 +20,7 @@ public:
 public:
 	void Construct(const FArguments& InArgs);
 	void SetComponent(FSharedTaskComponent InComponent);
+	void Clear();
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	void OnTaskListChanged(FDreamTaskSpecHandleContainer& InTaskList);
 	const TArray<FDreamTaskSpecHandlePtr>* GetTaskHandles();

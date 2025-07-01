@@ -9,52 +9,101 @@
 
 #define LOCTEXT_NAMESPACE "DreamTaskManagerDebugger_Detail_SpecRow"
 
-void SDreamTaskManagerDebugger_Detail_SpecRow::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase> InOwnerTableView)
+void SDreamTaskManagerDebugger_Detail_SpecRow::Construct(const FArguments& InArgs,
+                                                         const TSharedRef<STableViewBase> InOwnerTableView)
 {
 	Handle = InArgs._Handle;
 	Detail = InArgs._Detail;
 	FSuperRowType::Construct(FSuperRowType::FArguments().Padding(2.f), InOwnerTableView);
 }
 
+#define LOCPADDING 4.f
+
 TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForColumn(const FName& InColumnName)
 {
 	if (InColumnName == "Name")
 	{
-		return SNew(TB)
-			.Text(MAKE_FORMATTED_TEXT(LOCTEXT("Name", "Name : {0}"),
-			                          Handle->GetTask()->GetTaskDisplayName())
-			);
+		return SNew(SOverlay)
+				OSLOT()
+				.Padding(LOCPADDING)
+				[
+					SNew(TB)
+					.Text(MAKE_FORMATTED_TEXT(LOCTEXT("Name", "Name : {0}"),
+					                          Handle->GetTask()->GetTaskDisplayName())
+					)
+				];
 	}
 
 	if (InColumnName == "State")
 	{
-		return SNew(TB)
-			.Text(MAKE_FORMATTED_TEXT(LOCTEXT("State", "State : {0}"),
-			                          StaticEnum<EDreamTaskState>()->GetDisplayValueAsText(Handle->GetTaskState())
-			));
+		return SNew(SOverlay)
+				OSLOT()
+				.Padding(LOCPADDING)
+				[
+					SNew(TB)
+					.Text(MAKE_FORMATTED_TEXT(LOCTEXT("State", "State : {0}"),
+					                          StaticEnum<EDreamTaskState>()->GetDisplayValueAsText(Handle->GetTaskState(
+					                          ))
+						)
+					)
+				];
 	}
 
 	if (InColumnName == "CompletedCondition")
 	{
 		TSharedRef<VB> VBox = SNew(VB);
 
+		VBox->AddSlot()
+		[
+			SNew(SOverlay)
+			OSLOT()
+			.Padding(LOCPADDING / 2.f)
+			[
+				SNew(TB)
+				.Text(MAKE_FORMATTED_TEXT(LOCTEXT("ConditionTitle", "Condition Number: %s"),
+				                          FText::AsNumber(Handle->GetTaskConditions().Num())))
+			]
+		];
+
 		for (auto Condition : Handle->GetTask()->TaskCompletedCondition.Conditions)
 		{
 			VBox->AddSlot()[
 				SNew(SHorizontalBox)
 				HSLOT()
+				.Padding(LOCPADDING)
 				[
-					SNew(TB)
-					.Text(MAKE_FORMATTED_TEXT(
-						LOCTEXT("Condition", "ID : {0} Display Name : {1} Progress : {2} / {3}"),
-						FText::FromString(Condition.Key.ToString()), // Convert FName to FText
-						FText::FromString(Condition.Value->ConditionDisplayName.ToString()), // Convert FString to FText
-						FText::AsNumber(Condition.Value->GetCount()), // Convert int32 to FText
-						FText::AsNumber(Condition.Value->GetCompletedCount()) // Convert int32 to FText
-					)					)
+					SNew(SOverlay)
+					OSLOT()
+					.Padding(LOCPADDING / 2.f)
+					[
+						SNew(TB)
+						.Text(MAKE_FORMATTED_TEXT(
+								LOCTEXT("Condition",
+									"> ID : {0} Display Name : {1} Progress : {2} / {3} Must Be Completed : %s"),
+								FText::FromString(Condition.Key.ToString()),
+								FText::FromString(Condition.Value->ConditionDisplayName.ToString()),
+								FText::AsNumber(Condition.Value->GetCount()),
+								FText::AsNumber(Condition.Value->GetCompletedCount()),
+								FText::FromString(Condition.Value->bTaskMustBeCompleted ? TEXT("Yes") : TEXT("No"))
+							)
+						)
+					]
 				]
 			];
 		}
+
+		VBox->AddSlot()
+		[
+			SNew(SOverlay)
+			OSLOT()
+			.Padding(LOCPADDING / 2.f)
+			[
+				SNew(TB)
+				.Text(MAKE_FORMATTED_TEXT(LOCTEXT("ConditionTool", "Completed Mode : %s"),
+				                          StaticEnum<EDreamTaskConditionalCompletionMode>()->GetDisplayValueAsText(
+					                          Handle->GetTask()->TaskCompletedCondition.CompletionMode))				)
+			]
+		];
 
 		return VBox;
 	}
@@ -62,6 +111,8 @@ TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForC
 	return SNew(TB)
 		.Text(LOCTEXT("Error", "Error"));
 }
+
+#undef LOCPADDING
 
 #define BUILD_ACTION(Name, ToolTip, Action) \
 	MenuBuilder.AddMenuEntry( \
@@ -71,8 +122,11 @@ TSharedRef<SWidget> SDreamTaskManagerDebugger_Detail_SpecRow::GenerateWidgetForC
 		FUIAction(Action) \
 	);
 
-FReply SDreamTaskManagerDebugger_Detail_SpecRow::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+FReply SDreamTaskManagerDebugger_Detail_SpecRow::OnMouseButtonDown(const FGeometry& MyGeometry,
+                                                                   const FPointerEvent& MouseEvent)
 {
+	if (!Handle.IsValid()) return FReply::Unhandled();
+
 	if (MouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
 		// 创建菜单构建器
@@ -111,27 +165,34 @@ FReply SDreamTaskManagerDebugger_Detail_SpecRow::OnMouseButtonDown(const FGeomet
 
 		MenuBuilder.AddSeparator("Condition setting");
 
-		for (auto Element : Handle->GetTask()->GetTaskConditions())
+		for (TPair<FName, UDreamTaskConditionTemplate*>& Element : Handle->GetTaskConditions())
 		{
-			BUILD_ACTION(FString::Printf(TEXT("Update %s conditional progress"), *Element->ConditionDisplayName.ToString()), "Adding conditional progress",
-			             FExecuteAction::CreateLambda(
-				             [Element, this]()
-				             {
-				             Element->Update();
-				             Detail->Refresh();
-				             })
+			BUILD_ACTION(
+				FString::Printf(TEXT("Update %s conditional progress"), *Element.Value->ConditionDisplayName.ToString()
+				),
+				"Adding conditional progress",
+				FExecuteAction::CreateLambda([Element, this]()
+					{
+					Element.Value->Update();
+					Handle->GetTask()->UpdateTaskByName({ Element.Key });
+					Detail->Refresh();
+					})
 			);
 		}
 
-		for (auto Element : Handle->GetTask()->GetTaskConditions())
+		for (TPair<FName, UDreamTaskConditionTemplate*>& Element : Handle->GetTaskConditions())
 		{
-			BUILD_ACTION(FString::Printf(TEXT("Remove the %s conditional progress"), *Element->ConditionDisplayName.ToString()), "Remove conditional progress",
-			             FExecuteAction::CreateLambda(
-				             [Element, this]()
-				             {
-				             Element->SetCount(FMath::Clamp(Element->GetCount() - 1, 0, Element->GetCompletedCount()));
-				             Detail->Refresh();
-				             })
+			BUILD_ACTION(
+				FString::Printf(TEXT("Remove the %s conditional progress"), *Element.Value->ConditionDisplayName.
+					ToString()),
+				"Remove conditional progress",
+				FExecuteAction::CreateLambda([Element, this]()
+					{
+					Element.Value->SetCount(FMath::Clamp(Element.Value->GetCount() - 1, 0, Element.Value->
+						GetCompletedCount()));
+					Handle->GetTask()->UpdateTaskByName({ Element.Key });
+					Detail->Refresh();
+					})
 			);
 		}
 
