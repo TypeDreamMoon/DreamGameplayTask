@@ -230,6 +230,8 @@ void UDreamTask::FailedTask_Internal()
 	BP_TaskFailed();
 }
 
+
+// TODO : 当此任务完成时 会强制停止计时器 但是别的任务还没完成呢 这是个BUG 记得修
 void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 {
 	// 更新状态
@@ -283,8 +285,11 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 			break;
 
 		case EDreamTaskState::EDTS_Timeout:
-			BP_TaskTimeout();
-			OwnerComponent->StopTimer();
+			if (bUseMaximumCompletionTime)
+			{
+				BP_TaskTimeout();
+				OwnerComponent->StopTimer();
+			}
 			break;
 
 		default:

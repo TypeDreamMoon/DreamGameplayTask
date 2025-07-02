@@ -176,14 +176,18 @@ void FDreamTaskSpecHandle::Update(float DeltaTime)
 
 	if (UDreamTask* TaskPtr = Task.Get())
 	{
-		if (IsTimeout() && TaskPtr->bUseMaximumCompletionTime)
-		{
-			TaskPtr->SetTaskState(EDreamTaskState::EDTS_Timeout);
-		}
-		else if (TaskPtr->IsCompleted())
+		if (TaskPtr->IsCompleted())
 		{
 			TaskPtr->SetTaskState(EDreamTaskState::EDTS_Completed);
+			return;
 		}
+		
+		if (TaskPtr->bUseMaximumCompletionTime && IsTimeout())
+		{
+			TaskPtr->SetTaskState(EDreamTaskState::EDTS_Timeout);
+			DGT_DEBUG_LOG(Error, TEXT("Absdawdwd"))
+		}
+		
 	}
 }
 

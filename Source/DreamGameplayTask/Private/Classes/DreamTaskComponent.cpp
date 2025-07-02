@@ -56,12 +56,14 @@ FDreamTaskSpecHandle UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask
 	}
 
 	UDreamTask* Task = NewObject<UDreamTask>(this, InClass);
-	Task->AddToRoot();
 	Task->InitializeTask(this, InPayload);
 	FDreamTaskSpecHandle& SpecHandle = TaskData.AddHandle(FDreamTaskSpecHandle(Task, FDateTime::Now()));
 
 	OnTaskListChanged.Broadcast(TaskData);
 	OnTaskListChangedDelegate.Broadcast(TaskData);
+	
+	ActiveTimer();
+	
 	return SpecHandle;
 }
 
@@ -205,7 +207,9 @@ void UDreamTaskComponent::ActiveTimer()
 {
 	if (!bTimerActive && GetOwner())
 	{
-		GetOwner()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
+		DGT_UPDATER_DEBUG_LOG(Warning, TEXT("Timer Active."));
+		GetOwner()->GetWorld()->GetTimerManager()
+			.SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
 		bTimerActive = true;
 	}
 }
@@ -214,6 +218,7 @@ void UDreamTaskComponent::StopTimer()
 {
 	if (bTimerActive && GetOwner())
 	{
+		DGT_UPDATER_DEBUG_LOG(Warning, TEXT("Timer Stop."));
 		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		bTimerActive = false;
 	}
@@ -222,14 +227,15 @@ void UDreamTaskComponent::StopTimer()
 void UDreamTaskComponent::Updater()
 {
 	if (!IsValid(this))
-	{
 		return;
-	}
+
 	TaskData.UpdateHandles(TimerDeltaTime);
 
+	// 如果开启自动停止，且任务空了/全完成，则停止
 	if (TaskData.IsAllCompleted() || TaskData.IsEmpty())
 	{
 		DGT_UPDATER_DEBUG_LOG(Warning, TEXT("All tasks done or empty; stopping timer automatically."));
-		StopTimer();
+		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		bTimerActive = false;
 	}
 }
