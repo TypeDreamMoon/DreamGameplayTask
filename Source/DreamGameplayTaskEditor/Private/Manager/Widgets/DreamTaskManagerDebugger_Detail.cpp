@@ -1,5 +1,6 @@
 ﻿#include "Manager/Widgets/DreamTaskManagerDebugger_Detail.h"
 
+#include "DreamGameplayTaskEditorLog.h"
 #include "Components/ListView.h"
 
 #include "Classes/DreamTaskComponent.h"
@@ -11,7 +12,8 @@
 #include "Editor/ClassViewer/Public/ClassViewerFilter.h"
 
 #define LOCTEXT_NAMESPACE "DreamTaskManagerDebugger_Detail_SpecRow"
-#define DECODE_SharedPtr(Val) Val.ToSharedRef().Get()
+
+#define CHECK_COMPONENT (Component.IsValid() && Component.Get()->IsValid() && Component.Get()->Get() != nullptr)
 
 class FDreamGameplayTaskManagerTaskClassFiler : public IClassViewerFilter
 {
@@ -54,19 +56,28 @@ void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 			[
 				SNew(HB)
 
+				// Start Tile Component Picker
 				HSLOT()
 				[
 					SNew(TB)
 					.Font(FDreamTaskManagerUtil::GetTextFont(12.f))
 					.Text_Lambda([this]()
 					{
-						return MAKE_TEXT(TEXT("Owner : %15s -> Task Component : %s"),
-						                 *DECODE_SharedPtr(TaskComponent)->GetOwner()->GetName(),
-						                 *DECODE_SharedPtr(TaskComponent)->GetName()
-						)						;
+						if (CHECK_COMPONENT)
+						{
+							return MAKE_TEXT(
+								TEXT("Owner : %15s -> Task Component : %s"),
+								*Component.Get()->Get()->GetOwner()->GetName(),
+								*Component.Get()->Get()->GetName())							;
+						}
+						else
+						{
+							return MAKE_TEXT(TEXT("Empty"));
+						}
 					})
 				]
 
+				// Start Refresh Button
 				HSLOT()
 				.AutoWidth()
 				HA(HRIGHT)
@@ -80,6 +91,7 @@ void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 					})
 				]
 
+				// Start Give Task Button
 				HSLOT()
 				.AutoWidth()
 				HA(HRIGHT)
@@ -88,7 +100,7 @@ void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("GiveTask", "Give Task"))
 					.OnClicked_Lambda([this]()
 					{
-						if (!TaskComponent.IsValid()) return FReply::Handled();
+						if (!CHECK_COMPONENT) return FReply::Handled();
 
 						UClass* Class = UDreamTask::StaticClass();
 						UClass* ChosenClass = UDreamTask::StaticClass();
@@ -110,19 +122,21 @@ void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 						const FText TitleText = LOCTEXT("GiveTask", "Pick Task Class");
 						SClassPickerDialog::PickClass(TitleText, Options, ChosenClass, Class);
 
-						GET_TSharedPtr(TaskComponent)->GiveTaskByClass(ChosenClass);
+						GET_TSharedPtr(Component)->GiveTaskByClass(ChosenClass);
 
 						return FReply::Handled();
 					})
 				]
 			]
 
+			// Start List View
 			VSLOT()
 			HA(HFILL)
 			VA(VFILL)
 			[
 				SAssignNew(Switcher, SWidgetSwitcher)
 
+				// Empty List
 				+ SWidgetSwitcher::Slot()
 				HA(HCENTER)
 				VA(VCENTER)
@@ -132,11 +146,12 @@ void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("EmptyText", "No task, task array is empty."))
 				]
 
+				//  List
 				+ SWidgetSwitcher::Slot()
 				[
-					SAssignNew(TaskListView, SListView<FDreamTaskSpecHandlePtr>)
-					.EnableAnimatedScrolling(true)
+					SAssignNew(ListView, SListView<FDreamManagerAccessKey>)
 					.ListItemsSource(&Handles)
+					.EnableAnimatedScrolling(true)
 					.OnGenerateRow(this, &SDreamTaskManagerDebugger_Detail::OnGenerateRow)
 					.HeaderRow(MakeHeaderRow())
 				]
@@ -145,22 +160,28 @@ void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 	];
 }
 
-void SDreamTaskManagerDebugger_Detail::SetComponent(FSharedTaskComponent InComponent)
+void SDreamTaskManagerDebugger_Detail::SetComponent(FDreamManagerTaskComponent InComponent)
 {
-	TaskComponent = InComponent;
-
-	if (TaskComponent.IsValid())
+	if (CHECK_COMPONENT)
 	{
-		DECODE_SharedPtr(TaskComponent)->OnTaskListChangedDelegate.AddSP(
-			this, &SDreamTaskManagerDebugger_Detail::OnTaskListChanged);
-		
-		OnTaskListChanged(GET_TSharedPtr(TaskComponent)->TaskData);
+		(*Component)->OnTaskListChangedDelegate.RemoveAll(this);
 	}
-}
 
-void SDreamTaskManagerDebugger_Detail::Clear()
-{
-	TaskComponent.Reset();
+	// Check in component
+	if (!(InComponent.IsValid() && InComponent.Get()->IsValid() && InComponent.Get()->Get() != nullptr))
+		return;
+
+	// Set component
+	Component = InComponent;
+
+	// Add delegate
+	if (Component.IsValid())
+	{
+		ComponentDelegateHandle = (*Component)->OnTaskListChangedDelegate.AddSP(
+			this, &SDreamTaskManagerDebugger_Detail::HandleTaskListChanged);
+	}
+
+	HandleTaskListChanged((*Component)->TaskData);
 }
 
 void SDreamTaskManagerDebugger_Detail::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime,
@@ -168,30 +189,43 @@ void SDreamTaskManagerDebugger_Detail::Tick(const FGeometry& AllottedGeometry, c
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	if (TaskComponent.IsValid())
-	{
-		Switcher->SetActiveWidgetIndex(DECODE_SharedPtr(TaskComponent)->TaskData.IsEmpty() ? 0 : 1);
-	}
+	// Check Component
+	// if (CHECK_COMPONENT)
+	// {
+	// 	Switcher->SetActiveWidgetIndex(Handles.IsEmpty() ? 0 : 1);
+	// }
+	// else
+	// {
+	// 	ListView->RequestListRefresh();
+	// }
 }
 
-void SDreamTaskManagerDebugger_Detail::OnTaskListChanged(FDreamTaskSpecHandleContainer& InTaskList)
+void SDreamTaskManagerDebugger_Detail::HandleTaskListChanged(FDreamTaskSpecHandleContainer& InTaskList)
 {
 	Handles.Empty();
-	for (auto Element : InTaskList.GetHandles())
+
+	const auto& RawHandles = InTaskList.GetHandles();
+
+	for (int32 i = 0; i < RawHandles.Num(); i++)
 	{
-		Handles.Add(MakeShared<FDreamTaskSpecHandle>(Element));
+		Handles.Add(MakeShareable(new FDreamManagerRowKey(*Component.Get(), i)));
 	}
 
+	if (Switcher.IsValid())
+	{
+		Switcher->SetActiveWidgetIndex(Handles.IsEmpty() ? 0 : 1);
+	}
 
-	TaskListView->RequestListRefresh();
+	if (ListView.IsValid())
+	{
+		ListView->RequestListRefresh();
+	}
 }
 
-TSharedRef<ITableRow> SDreamTaskManagerDebugger_Detail::OnGenerateRow(FDreamTaskSpecHandlePtr InItem,
-
-const TSharedRef<STableViewBase>& OwnerTable)
+TSharedRef<ITableRow> SDreamTaskManagerDebugger_Detail::OnGenerateRow(FDreamManagerAccessKey InItem, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	return SNew(SDreamTaskManagerDebugger_Detail_SpecRow, OwnerTable)
-		.Handle(InItem)
+		.AccessKey(InItem)
 		.Detail(SharedThis(this));
 }
 
@@ -200,15 +234,38 @@ TSharedRef<SHeaderRow> SDreamTaskManagerDebugger_Detail::MakeHeaderRow()
 	return SNew(SHeaderRow)
 			BUILD_HEADER(TEXT("Name"), LOCTEXT("Name", "Name"))
 			BUILD_HEADER(TEXT("State"), LOCTEXT("State", "State"))
+			BUILD_HEADER(TEXT("EndTime"), LOCTEXT("EndTime", "EndTime"))
 			BUILD_HEADER(TEXT("CompletedCondition"), LOCTEXT("CompletedCondition", "CompletedCondition"));
 }
 
 void SDreamTaskManagerDebugger_Detail::Refresh()
 {
-	TaskListView->ClearItemsSource();
-	TaskListView->RequestListRefresh();
-	TaskListView->SetItemsSource(&Handles);
-	TaskListView->RequestListRefresh();
+	ListView->RequestListRefresh();
+}
+
+void SDreamTaskManagerDebugger_Detail::BeginPIE()
+{
+	DGT_ED_FLOG(Log, TEXT("BeginPIE"))
+
+	Component.Reset();
+	Handles.Empty();
+	Switcher->SetActiveWidgetIndex(0);
+	ListView->RequestListRefresh();
+
+
+	DGT_ED_FLOG(Log, TEXT("CLEAN SUCCESS"))
+}
+
+void SDreamTaskManagerDebugger_Detail::EndPIE()
+{
+	DGT_ED_FLOG(Log, TEXT("EndPIE"))
+
+	Component.Reset();
+	Handles.Empty();
+	Switcher->SetActiveWidgetIndex(0);
+	ListView->RequestListRefresh();
+
+	DGT_ED_FLOG(Log, TEXT("CLEAN SUCCESS"))
 }
 
 #undef LOCTEXT_NAMESPACE

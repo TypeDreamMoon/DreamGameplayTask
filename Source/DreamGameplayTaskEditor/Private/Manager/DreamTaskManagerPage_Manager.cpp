@@ -124,20 +124,19 @@ SDreamTaskManagerPage_Manager::~SDreamTaskManagerPage_Manager()
 
 void SDreamTaskManagerPage_Manager::Refresh()
 {
-	Clear();
+	Clear();  // First, clear the previous state
 
 	UClass* FindClass = UDreamTask::StaticClass();
 
+	// Ensure assets are loaded correctly
 	FDreamGameplayTaskEditorTools::LoadAssetToMemory(FindClass);
-
 	TArray<FAssetData> AssetData = FDreamGameplayTaskEditorTools::GetAssetData(FindClass);
 
 	for (FAssetData& Data : AssetData)
 	{
 		UBlueprint* Blueprint = Cast<UBlueprint>(Data.FastGetAsset(true));
-
-		if (!Blueprint) continue;
-		if (!Blueprint->ParentClass) continue;
+		if (!Blueprint || !Blueprint->ParentClass)
+			continue;
 
 		if (Blueprint->ParentClass->IsChildOf(FindClass) || Blueprint->ParentClass == FindClass)
 		{
@@ -149,23 +148,23 @@ void SDreamTaskManagerPage_Manager::Refresh()
 					FDreamTaskManagerRowDataPtr ItemPtr = MakeShared<FDreamTaskManagerRowData>(Task, Blueprint);
 					if (ItemPtr.IsValid())
 					{
-						List.Add(ItemPtr);
+						List.Add(ItemPtr);  // Add new tasks to the list
 					}
 				}
 			}
 		}
 	}
 
+	// Refresh the list after adding new items
 	ListView->RequestListRefresh();
-
-	Check();
+	Check();  // Make sure the correct page is displayed
 }
 
 void SDreamTaskManagerPage_Manager::Clear()
 {
-	List.Empty();
-	ListView->RequestListRefresh();
-	Check();
+	List.Empty();  // Clear the task list
+	ListView->RequestListRefresh();  // Refresh the list to show an empty state
+	Check();  // Ensure the correct page is displayed (either list or error message)
 }
 
 void SDreamTaskManagerPage_Manager::Check()

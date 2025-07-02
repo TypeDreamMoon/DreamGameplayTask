@@ -36,8 +36,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Debug")
 	bool bEnableDebug = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Updater Debug")
+	bool bEnableUpdaterDebug = false;
+
 public:
 	bool MappingHasTask(TSubclassOf<UDreamTask> InTask);
 	bool MakeTaskMapping(UDreamTask* InTask);
 	static bool GetEnableDebug();
+	static bool GetEnableUpdaterDebug();
 };

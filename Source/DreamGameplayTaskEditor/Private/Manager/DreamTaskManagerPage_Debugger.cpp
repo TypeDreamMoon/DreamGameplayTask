@@ -17,16 +17,19 @@ void SDreamTaskManagerPage_Debugger::Construct(const FArguments& InArgs)
 	ChildSlot[
 		SAssignNew(WidgetSwitcher, SWidgetSwitcher)
 
+		//Start Error Text
 		+ SWidgetSwitcher::Slot()
 		[
 			SNew(SErrorText)
 			.ErrorText(LOCTEXT("ErrorText", "Current is not PIE (Play In Editor) Running Mode, Please Running."))
 		]
 
+		// Start Content
 		+ SWidgetSwitcher::Slot()
 		[
 			SNew(VB)
 
+			// Header
 			VSLOT()
 			.AutoHeight()
 			[
@@ -43,33 +46,19 @@ void SDreamTaskManagerPage_Debugger::Construct(const FArguments& InArgs)
 				HSLOT()
 				.Padding(5.f)
 				[
-					SAssignNew(TaskComponentPicker, SComboBox<FSharedTaskComponent>)
+					SAssignNew(TaskComponentPicker, SComboBox<FDreamManagerTaskComponent>)
 					.OptionsSource(&TaskComponents)
 					.OnComboBoxOpening(this, &SDreamTaskManagerPage_Debugger::HandleUpdateComponentPicker)
-					.OnGenerateWidget_Lambda([](FSharedTaskComponent Comp)
-					{
-						return SNew(STextBlock)
-							.Text(MAKE_TEXT(TEXT("Owner : %s Component : %s"),
-							                *Comp.ToSharedRef().Get()->GetOwner()->GetName(),
-							                *Comp.ToSharedRef().Get()->GetName())							);
-					})
-					.OnSelectionChanged_Lambda([this](FSharedTaskComponent Component, ESelectInfo::Type SelectInfo)
-					{
-						if (SelectInfo == ESelectInfo::Type::OnMouseClick)
-						{
-							SelectedComponent = Component;
-							TaskComponentPickerTextBlock->SetText(OnGetPickerText());
-							TaskComponentDetail->SetComponent(SelectedComponent);
-							TaskComponentDetail->SetVisibility(EVisibility::Visible);
-						}
-					})
+					.OnGenerateWidget(this, &SDreamTaskManagerPage_Debugger::HandlePickerGenerateWidget)
+					.OnSelectionChanged(this, &SDreamTaskManagerPage_Debugger::HandlePickerSelectionChanged)
 					[
 						SAssignNew(TaskComponentPickerTextBlock, STextBlock)
-						.Text(OnGetPickerText())
+						.Text(HandleGetPickerText())
 					]
 				]
 			]
 
+			// Content
 			VSLOT()
 			HA(HFILL)
 			VA(VFILL)
@@ -87,13 +76,18 @@ void SDreamTaskManagerPage_Debugger::Construct(const FArguments& InArgs)
 
 SDreamTaskManagerPage_Debugger::~SDreamTaskManagerPage_Debugger()
 {
+	if (TaskComponentDetail.IsValid())
+	{
+		TaskComponentDetail->EndPIE();
+	}
+
 	UnregisterLister();
 }
 
 void SDreamTaskManagerPage_Debugger::RegisterLister()
 {
-	FEditorDelegates::PostPIEStarted.AddRaw(this, &SDreamTaskManagerPage_Debugger::BeginPIE);
-	FEditorDelegates::ShutdownPIE.AddRaw(this, &SDreamTaskManagerPage_Debugger::EndPIE);
+	FEditorDelegates::PostPIEStarted.AddRaw(this, &SDreamTaskManagerPage_Debugger::HandlePIE_Begin);
+	FEditorDelegates::ShutdownPIE.AddRaw(this, &SDreamTaskManagerPage_Debugger::HandlePIE_End);
 }
 
 void SDreamTaskManagerPage_Debugger::UnregisterLister()
@@ -102,28 +96,65 @@ void SDreamTaskManagerPage_Debugger::UnregisterLister()
 	FEditorDelegates::ShutdownPIE.RemoveAll(this);
 }
 
-void SDreamTaskManagerPage_Debugger::BeginPIE(const bool bIsSimulating)
+void SDreamTaskManagerPage_Debugger::HandlePIE_Begin(const bool bIsSimulating)
 {
 	if (bIsSimulating)
 		return;
 
+	// Start Internal
 	WidgetSwitcher->SetActiveWidgetIndex(1);
 	HandleUpdateComponentPicker();
 	TaskComponentPicker->SetItemsSource(&TaskComponents);
+
+	// Start Detail
+	TaskComponentDetail->BeginPIE();
 }
 
-void SDreamTaskManagerPage_Debugger::EndPIE(const bool bIsSimulating)
+void SDreamTaskManagerPage_Debugger::HandlePIE_End(const bool bIsSimulating)
 {
-	if (bIsSimulating)
-		return;
+	if (bIsSimulating) return;
 
+	// Pre Clean
+
+	TaskComponentDetail->EndPIE();
+
+	// Post Clean
+
+	// 安全清空组件列表
+	for (auto& CompPtr : TaskComponents)
+	{
+		if (CompPtr.IsValid())
+		{
+			*CompPtr = nullptr; // 显式置空指针
+		}
+	}
+	TaskComponents.Empty();
+
+	// 重置UI状态
 	WidgetSwitcher->SetActiveWidgetIndex(0);
 	SelectedComponent = nullptr;
-	TaskComponents.Empty();
-	TaskComponentDetail->Clear();
 	TaskComponentPicker->ClearSelection();
-	TaskComponentDetail->SetVisibility(EVisibility::Collapsed);
-	TaskComponentPickerTextBlock->SetText(LOCTEXT("Please PickComponent", "Please Pick Task Component"));
+	TaskComponentPickerTextBlock->SetText(LOCTEXT("PleasePickComponent", "Please Pick Task Component"));
+}
+
+void SDreamTaskManagerPage_Debugger::HandlePickerSelectionChanged(FDreamManagerTaskComponent Component, ESelectInfo::Type SelectInfo)
+{
+	if (SelectInfo == ESelectInfo::Type::OnMouseClick)
+	{
+		SelectedComponent = Component;
+		TaskComponentPickerTextBlock->SetText(HandleGetPickerText());
+		TaskComponentDetail->SetComponent(SelectedComponent);
+		TaskComponentDetail->SetVisibility(EVisibility::Visible);
+	}
+}
+
+TSharedRef<SWidget> SDreamTaskManagerPage_Debugger::HandlePickerGenerateWidget(FDreamManagerTaskComponent InComponent)
+{
+	return SNew(STextBlock)
+		.Text(MAKE_TEXT(TEXT("Owner : %s Component : %s"),
+		                *InComponent.ToSharedRef().Get()->GetOwner()->GetName(),
+		                *InComponent.ToSharedRef().Get()->GetName())
+		);
 }
 
 void SDreamTaskManagerPage_Debugger::HandleUpdateComponentPicker()
@@ -151,13 +182,23 @@ void SDreamTaskManagerPage_Debugger::HandleUpdateComponentPicker()
 			continue;
 		}
 
-		TaskComponents.Add(MakeShared<UDreamTaskComponent*>(Component));
+		const EWorldType::Type WorldType = Component->GetWorld()->WorldType;
+		const bool bValidWorld =
+			WorldType == EWorldType::PIE ||
+			WorldType == EWorldType::Editor ||
+			WorldType == EWorldType::Game ||
+			WorldType == EWorldType::EditorPreview ||
+			WorldType == EWorldType::GamePreview;
+
+		if (!bValidWorld) continue;
+
+		TaskComponents.Add(MakeShared<TWeakObjectPtr<UDreamTaskComponent>>(Component));
 	}
 
 	TaskComponentPicker->RefreshOptions();
 }
 
-FText SDreamTaskManagerPage_Debugger::OnGetPickerText()
+FText SDreamTaskManagerPage_Debugger::HandleGetPickerText()
 {
 	FText Text = SELECT(SelectedComponent.IsValid(),
 	                    MAKE_TEXT(TEXT("%s -> %s"), *SelectedComponent.ToSharedRef().Get()->GetOwner()->GetName(), *

@@ -13,12 +13,13 @@ class UDreamTask;
 UENUM(BlueprintType, Meta=(Bitflags, UseEnumValuesAsMaskValuesInEditor=true))
 enum class EDreamTaskState : uint8
 {
-	EDTS_None			=		0		UMETA(DisplayName = "None"),
-	EDTS_Accept			=		1 << 0	UMETA(DisplayName = "Accept"),
-	EDTS_Going			=		1 << 1	UMETA(DisplayName = "Going"),
-	EDTS_Completed		=		1 << 2	UMETA(DisplayName = "Completed"),
-	EDTS_Failed			=		1 << 3	UMETA(DisplayName = "Failed"),
-	EDTS_Timeout		=		1 << 4	UMETA(DisplayName = "Timeout"),
+	EDTS_None = 0 UMETA(DisplayName = "None"),
+	EDTS_Accept = 1 << 0 UMETA(DisplayName = "Accept"),
+	EDTS_Going = 1 << 1 UMETA(DisplayName = "Going"),
+	EDTS_Completed = 1 << 2 UMETA(DisplayName = "Completed"),
+	EDTS_Failed = 1 << 3 UMETA(DisplayName = "Failed"),
+	EDTS_Timeout = 1 << 4 UMETA(DisplayName = "Timeout"),
+	EDTS_Initialized = 1 << 5 UMETA(DisplayName = "Initialized"),
 };
 
 ENUM_CLASS_FLAGS(EDreamTaskState)
@@ -75,7 +76,7 @@ public:
 	 * @param InTask 要关联的UDreamTask对象
 	 * @param InStartTime 任务开始时间
 	 */
-	FDreamTaskSpecHandle(TObjectPtr<UDreamTask> InTask, FDateTime InStartTime);
+	FDreamTaskSpecHandle(UDreamTask* InTask, FDateTime InStartTime);
 
 	/**
 	 * @brief 获取无效的任务句柄
@@ -113,13 +114,13 @@ public:
 	 * @brief 获取关联的任务对象
 	 * @return 返回UDreamTask指针
 	 */
-	UDreamTask* GetTask() const { return Task; }
+	UDreamTask* GetTask() const { return Task.Get(); }
 
 	/**
 	 * @brief 获取任务所属组件
 	 * @return 返回UDreamTaskComponent指针
 	 */
-	UDreamTaskComponent* GetOwnerComponent() const { return OwnerComponent; }
+	UDreamTaskComponent* GetOwnerComponent() const { return OwnerComponent.Get(); }
 
 	/**
 	 * @brief 获取任务GUID
@@ -152,10 +153,20 @@ public:
 	FDateTime GetEndTime() const;
 
 	/**
+	 * @brief 获取最大时间限制
+	 * @return 获取最大时间限制
+	 */
+	FDateTime GetMaximumTime() const;
+
+	/**
 	 * @brief 获取任务条件映射
 	 * @return 任务条件映射
 	 */
 	TMap<FName, UDreamTaskConditionTemplate*>& GetTaskConditions();
+
+	TMap<FName, UDreamTaskConditionTemplate*>& GetTaskConditions() const;
+
+	int32 GetTaskConditionsCount() const;
 
 	/**
 	 * @brief 检查是否使用最大时间限制
@@ -222,6 +233,11 @@ public:
 	 * @param DeltaTime 帧时间间隔
 	 */
 	void Update(float DeltaTime);
+
+	/**
+	 * @brief 重置任务
+	 */
+	void Reset();
 
 public:
 	/**

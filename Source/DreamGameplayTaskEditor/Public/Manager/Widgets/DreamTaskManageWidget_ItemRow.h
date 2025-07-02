@@ -40,6 +40,7 @@ public:
 
 public:
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase> InOwnerTableView);
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override;
 
 public:

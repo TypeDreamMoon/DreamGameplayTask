@@ -13,6 +13,15 @@ UDreamTaskComponent::UDreamTaskComponent(const FObjectInitializer& ObjectInitial
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+UDreamTaskComponent::~UDreamTaskComponent()
+{
+	if (bTimerActive && GetOwner())
+	{
+		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		bTimerActive = false;
+	}
+}
+
 void UDreamTaskComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -21,23 +30,39 @@ void UDreamTaskComponent::BeginPlay()
 void UDreamTaskComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+
+	TaskData.ClearHandles();
+	OnTaskListChanged.Clear();
+	OnTaskListChangedDelegate.Clear();
+	OnTaskUpdate.Clear();
+	OnTaskStateUpdate.Clear();
+	if (bTimerActive && GetOwner())
+	{
+		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		bTimerActive = false;
+	}
+}
+
+void UDreamTaskComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
+{
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
 }
 
 FDreamTaskSpecHandle UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask> InClass, UObject* InPayload)
 {
-	if (!InClass) return FDreamTaskSpecHandle();
-
-	if (!HasTaskByClass(InClass))
+	if (!InClass || HasTaskByClass(InClass))
 	{
-		UDreamTask* Task = NewTask<UDreamTask>(InClass);
-		Task->InitializeTask(this, InPayload);
-		FDreamTaskSpecHandle& SpecHandle = TaskData.AddHandle(FDreamTaskSpecHandle(Task, FDateTime::Now()));
-		OnTaskListChanged.Broadcast(TaskData);
-		OnTaskListChangedDelegate.Broadcast(TaskData);
-		return SpecHandle;
+		return FDreamTaskSpecHandle();
 	}
 
-	return FDreamTaskSpecHandle();
+	UDreamTask* Task = NewObject<UDreamTask>(this, InClass);
+	Task->AddToRoot();
+	Task->InitializeTask(this, InPayload);
+	FDreamTaskSpecHandle& SpecHandle = TaskData.AddHandle(FDreamTaskSpecHandle(Task, FDateTime::Now()));
+
+	OnTaskListChanged.Broadcast(TaskData);
+	OnTaskListChangedDelegate.Broadcast(TaskData);
+	return SpecHandle;
 }
 
 void UDreamTaskComponent::InitializeTaskList(FDreamTaskSpecHandleContainer NewList)
@@ -66,34 +91,39 @@ bool UDreamTaskComponent::HasTaskByName(FName InCheckTaskName)
 
 bool UDreamTaskComponent::RemoveTaskByClass(TSubclassOf<UDreamTask> InRemoveTaskClass)
 {
-	for (auto Element : GetTaskList())
+	const FDreamTaskSpecHandle& Handle = TaskData.FindHandle(InRemoveTaskClass);
+	if (!Handle.IsValid())
 	{
-		if (Element == InRemoveTaskClass)
-		{
-			TaskData.RemoveHandle(Element);
-			OnTaskListChanged.Broadcast(TaskData);
-			OnTaskListChangedDelegate.Broadcast(TaskData);
-			return true;
-		}
+		return false;
 	}
-
-	return false;
+	TaskData.RemoveHandle(Handle);
+	OnTaskListChanged.Broadcast(TaskData);
+	OnTaskListChangedDelegate.Broadcast(TaskData);
+	return true;
 }
 
 bool UDreamTaskComponent::RemoveTaskByName(FName InRemoveTaskName)
 {
-	for (auto Element : GetTaskList())
+	TArray<FDreamTaskSpecHandle> ToRemove;
+	for (const FDreamTaskSpecHandle& Element : TaskData.GetHandles())
 	{
 		if (Element == InRemoveTaskName)
 		{
-			TaskData.RemoveHandle(Element);
-			OnTaskListChanged.Broadcast(TaskData);
-			OnTaskListChangedDelegate.Broadcast(TaskData);
-			return true;
+			ToRemove.Add(Element);
 		}
 	}
-
-	return false;
+	bool bRemoved = false;
+	for (const FDreamTaskSpecHandle& R : ToRemove)
+	{
+		TaskData.RemoveHandle(R);
+		bRemoved = true;
+	}
+	if (bRemoved)
+	{
+		OnTaskListChanged.Broadcast(TaskData);
+		OnTaskListChangedDelegate.Broadcast(TaskData);
+	}
+	return bRemoved;
 }
 
 void UDreamTaskComponent::UpdateTask(FName TaskName, const TArray<FName>& InConditionNames)
@@ -126,23 +156,80 @@ const FDreamTaskSpecHandle& UDreamTaskComponent::GetTaskByName(FName InTaskName)
 	});
 }
 
+void UDreamTaskComponent::ResetTaskByName(FName InName)
+{
+	FDreamTaskSpecHandle* Handle = TaskData.FindHandleMutable(InName);
+	if (Handle == nullptr)
+		return;
+	if (Handle->IsUseMaximumTime())
+	{
+		Handle->Reset();
+	}
+	else
+	{
+		Handle->GetTask()->ResetTask();
+	}
+}
+
+void UDreamTaskComponent::ResetTaskByClass(TSubclassOf<UDreamTask> InClass)
+{
+	FDreamTaskSpecHandle* Handle = TaskData.FindHandleMutable(InClass);
+	if (Handle == nullptr)
+		return;
+	if (Handle->IsUseMaximumTime())
+	{
+		Handle->Reset();
+	}
+	else
+	{
+		Handle->GetTask()->ResetTask();
+	}
+}
+
+void UDreamTaskComponent::ResetTask(UDreamTask* InTask)
+{
+	FDreamTaskSpecHandle* Handle = TaskData.FindHandleMutable(InTask);
+	if (Handle == nullptr)
+		return;
+	if (Handle->IsUseMaximumTime())
+	{
+		Handle->Reset();
+	}
+	else
+	{
+		Handle->GetTask()->ResetTask();
+	}
+}
+
 void UDreamTaskComponent::ActiveTimer()
 {
-	DGT_DEBUG_LOG(Log, TEXT("Timer Active."))
-	GetOwner()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
+	if (!bTimerActive && GetOwner())
+	{
+		GetOwner()->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
+		bTimerActive = true;
+	}
+}
+
+void UDreamTaskComponent::StopTimer()
+{
+	if (bTimerActive && GetOwner())
+	{
+		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		bTimerActive = false;
+	}
 }
 
 void UDreamTaskComponent::Updater()
 {
-	DGT_DEBUG_LOG(Log, TEXT("Update Handles."))
+	if (!IsValid(this))
+	{
+		return;
+	}
 	TaskData.UpdateHandles(TimerDeltaTime);
 
-	if (bTimerAutomation)
+	if (TaskData.IsAllCompleted() || TaskData.IsEmpty())
 	{
-		if (TaskData.IsAllCompleted() || TaskData.IsEmpty())
-		{
-			DGT_DEBUG_LOG(Log, TEXT("Handle is All Completed or Empty. TimerAutomation Have helped turn off the timer."))
-			GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-		}
+		DGT_UPDATER_DEBUG_LOG(Warning, TEXT("All tasks done or empty; stopping timer automatically."));
+		StopTimer();
 	}
 }

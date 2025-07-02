@@ -6,7 +6,7 @@
 #include "Classes/DreamTask.h"
 
 UDreamTaskConditionTemplate::UDreamTaskConditionTemplate(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer), OwnerTask(nullptr)
 {
 }
 
@@ -35,7 +35,10 @@ void UDreamTaskConditionTemplate::SetCount(int32 InValue)
 
 void UDreamTaskConditionTemplate::Update()
 {
-	SetCount(GetCount() + 1);
+	if (GetCount() < GetCompletedCount())
+	{
+		SetCount(GetCount() + 1);
+	}
 }
 
 void UDreamTaskConditionTemplate::Reset()

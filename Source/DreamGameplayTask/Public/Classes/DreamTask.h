@@ -71,8 +71,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (InlineEditConditionToggle))
 	bool bUseMaximumCompletionTime = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task, Meta = (EditCondition = "bUseMaximumCompletionTime"))
-	FTimecode MaximumCompletionTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Task, Meta = (EditCondition = "bUseMaximumCompletionTime", ClampMin = "0.0", Units = "Seconds"))
+	float MaximumCompletionTimeSeconds;
 
 	// 任务的条件
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= Condition)
@@ -85,6 +85,9 @@ public:
 	// 任务的额外数据 此数据无法保存
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Data)
 	TObjectPtr<UObject> Payload = nullptr;
+
+	UPROPERTY(Transient)
+	TArray<AActor*> CachedRelatedActors;
 
 public:
 	/**
@@ -280,6 +283,8 @@ public:
 
 public:
 	virtual UWorld* GetWorld() const override;
+
+	void ResetTask_Internal();
 
 protected:
 	virtual void CompletedTask_Internal();

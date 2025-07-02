@@ -22,6 +22,7 @@ void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* 
 
 	OwnerComponent = InOwnerComponent;
 	Payload = InPayload;
+	CachedRelatedActors = GetRelatedActors();
 
 	for (TPair<FName, UDreamTaskConditionTemplate*>& Condition : TaskCompletedCondition.GetConditionMapping())
 	{
@@ -30,7 +31,7 @@ void UDreamTask::InitializeTask(UDreamTaskComponent* InOwnerComponent, UObject* 
 
 	// Pre Initialized Successful. Start Post Initialize
 
-	for (auto Element : GetRelatedActors())
+	for (auto Element : CachedRelatedActors)
 	{
 		Cast<IDreamTaskInterface>(Element)->Execute_TaskInitialize(Element, this);
 	}
@@ -83,15 +84,16 @@ void UDreamTask::UpdateTaskByName(TArray<FName> ConditionNames)
 	{
 		for (auto Element : ConditionNames)
 		{
-			bool bUpdate = TaskCompletedCondition.UpdateConditionByName(Element);
-
-			if (bUpdate)
+			if (TaskCompletedCondition.UpdateConditionByName(Element))
 			{
+				BP_TaskConditionUpdate();
 				OnTaskConditionUpdate.Broadcast(this);
+
+				BP_TaskUpdate();
 				OwnerComponent->OnTaskUpdate.Broadcast(this);
 				OnTaskUpdate.Broadcast(this);
-				BP_TaskUpdate();
-				for (auto RelatedActor : GetRelatedActors())
+
+				for (auto RelatedActor : CachedRelatedActors)
 				{
 					Cast<IDreamTaskInterface>(RelatedActor)->Execute_TaskUpdate(RelatedActor, this);
 				}
@@ -135,6 +137,18 @@ UDreamTaskData* UDreamTask::GetTaskData() const
 }
 
 void UDreamTask::ResetTask()
+{
+	if (bUseMaximumCompletionTime)
+	{
+		OwnerComponent->ResetTask(this);
+	}
+	else
+	{
+		ResetTask_Internal();
+	}
+}
+
+void UDreamTask::ResetTask_Internal()
 {
 	TaskCompletedCondition.Reset();
 	SetTaskState(EDreamTaskState::EDTS_Accept);
@@ -216,40 +230,65 @@ void UDreamTask::FailedTask_Internal()
 	BP_TaskFailed();
 }
 
-// TODO : Updater 待更新
 void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 {
+	// 更新状态
 	TaskState = NewState;
 
-	OnTaskUpdate.Broadcast(this);
-	OnTaskStateUpdate.Broadcast(this);
-	OwnerComponent->OnTaskUpdate.Broadcast(this);
-	OwnerComponent->OnTaskStateUpdate.Broadcast(this);
+	// 先触发 Blueprint 事件，再广播，以确保 BP 能拦截或扩展行为
 	BP_TaskUpdate();
 
-	// DGT_DEBUG_LOG(Log, TEXT("NewState : %s"), *UEnum::GetValueAsString(NewState))
-	// DGT_DEBUG_LOG(Log, TEXT("EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Accept) : %d"), EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Accept))
+	// 广播 C++ 事件
+	OnTaskUpdate.Broadcast(this);
+	OnTaskStateUpdate.Broadcast(this);
 
-	if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Accept))
+	// 如果组件有效，广播组件层级事件
+	if (OwnerComponent)
 	{
-		AcceptTask_Internal();
-		GetOwnerComponent()->ActiveTimer();
+		OwnerComponent->OnTaskUpdate.Broadcast(this);
+		OwnerComponent->OnTaskStateUpdate.Broadcast(this);
 	}
-	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Completed))
+	else
 	{
-		CompletedTask_Internal();
+		DGT_LOG(Warning, TEXT("UpdateTaskState_Internal: OwnerComponent is null when updating state"));
 	}
-	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Failed))
+
+	// 根据不同状态执行专属逻辑，并在完成/失败/超时后停止定时
+	if (OwnerComponent)
 	{
-		FailedTask_Internal();
-	}
-	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Going))
-	{
-		GoingTask_Internal();
-		GetOwnerComponent()->ActiveTimer();
-	}
-	else if (EnumHasAnyFlags(NewState, EDreamTaskState::EDTS_Timeout))
-	{
-		TimeoutTask_Internal();
+		switch (TaskState)
+		{
+		case EDreamTaskState::EDTS_Accept:
+			BP_TaskAccept();
+			OwnerComponent->ActiveTimer();
+			break;
+
+		case EDreamTaskState::EDTS_Going:
+			BP_TaskGoing();
+			OwnerComponent->ActiveTimer();
+			break;
+
+		case EDreamTaskState::EDTS_Completed:
+			if (OwnerComponent && bUseMaximumCompletionTime)
+			{
+				OwnerComponent->TaskData.FindHandleMutable(this)->SetEndTime(FDateTime::Now());
+			}
+			BP_TaskCompleted();
+			OwnerComponent->StopTimer();
+			break;
+
+		case EDreamTaskState::EDTS_Failed:
+			BP_TaskFailed();
+			OwnerComponent->StopTimer();
+			break;
+
+		case EDreamTaskState::EDTS_Timeout:
+			BP_TaskTimeout();
+			OwnerComponent->StopTimer();
+			break;
+
+		default:
+			break;
+		}
 	}
 }

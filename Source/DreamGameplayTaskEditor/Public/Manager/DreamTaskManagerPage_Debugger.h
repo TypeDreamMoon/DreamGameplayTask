@@ -24,18 +24,21 @@ public:
 	void RegisterLister();
 	void UnregisterLister();
 
-	void BeginPIE(const bool bIsSimulating);
-	void EndPIE(const bool bIsSimulating);
+	// PIE Handles
+	void HandlePIE_Begin(const bool bIsSimulating);
+	void HandlePIE_End(const bool bIsSimulating);
 
+	// Picker Handles
+	void HandlePickerSelectionChanged(FDreamManagerTaskComponent Component, ESelectInfo::Type SelectInfo);
+	TSharedRef<SWidget> HandlePickerGenerateWidget(FDreamManagerTaskComponent InComponent);
 	void HandleUpdateComponentPicker();
-
-	FText OnGetPickerText();
+	FText HandleGetPickerText();
 
 protected:
 	TSharedPtr<SWidgetSwitcher> WidgetSwitcher;
 	TSharedPtr<STextBlock> TaskComponentPickerTextBlock;
-	TSharedPtr<SComboBox<FSharedTaskComponent>> TaskComponentPicker;
+	TSharedPtr<SComboBox<FDreamManagerTaskComponent>> TaskComponentPicker;
 	TSharedPtr<SDreamTaskManagerDebugger_Detail> TaskComponentDetail;
-	TArray<FSharedTaskComponent> TaskComponents;
-	FSharedTaskComponent SelectedComponent;
+	TArray<FDreamManagerTaskComponent> TaskComponents;
+	FDreamManagerTaskComponent SelectedComponent;
 };

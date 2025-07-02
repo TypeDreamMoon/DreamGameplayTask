@@ -5,7 +5,7 @@
 
 class UDreamTask;
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, Meta = (Bitflags))
 enum class EDreamTaskSpecHandleContainerState : uint8
 {
 	None = 0, // 未定义
@@ -15,15 +15,7 @@ enum class EDreamTaskSpecHandleContainerState : uint8
 	AllCompleted = 1 << 3, // 全部
 };
 
-inline EDreamTaskSpecHandleContainerState operator|(EDreamTaskSpecHandleContainerState LHS, EDreamTaskSpecHandleContainerState RHS)
-{
-	return static_cast<EDreamTaskSpecHandleContainerState>(static_cast<uint8>(LHS) | static_cast<uint8>(RHS));
-}
-
-inline bool operator&(EDreamTaskSpecHandleContainerState LHS, EDreamTaskSpecHandleContainerState RHS)
-{
-	return static_cast<uint8>(LHS) & static_cast<uint8>(RHS);
-}
+ENUM_CLASS_FLAGS(EDreamTaskSpecHandleContainerState)
 
 struct FDreamTaskSpecHandle;
 
@@ -88,6 +80,8 @@ public:
 	 */
 	const FDreamTaskSpecHandle& FindHandle(UDreamTask* InTask);
 
+	FDreamTaskSpecHandle* FindHandleMutable(UDreamTask* InTask);
+
 	/**
 	 * @brief 根据任务类查找对应的任务句柄
 	 * @param InClass 要查找的任务类
@@ -95,12 +89,16 @@ public:
 	 */
 	const FDreamTaskSpecHandle& FindHandle(TSubclassOf<UDreamTask> InClass);
 
+	FDreamTaskSpecHandle* FindHandleMutable(TSubclassOf<UDreamTask> InClass);
+
 	/**
 	 * @brief 根据名称查找对应的任务句柄
 	 * @param InName 要查找的任务名称
 	 * @return 返回找到的任务句柄常量引用
 	 */
 	const FDreamTaskSpecHandle& FindHandle(FName InName);
+
+	FDreamTaskSpecHandle* FindHandleMutable(FName InName);
 
 	/**
 	 * @brief 查找指定任务句柄的索引

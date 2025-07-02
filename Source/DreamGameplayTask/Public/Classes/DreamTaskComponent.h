@@ -18,11 +18,12 @@ class DREAMGAMEPLAYTASK_API UDreamTaskComponent : public UActorComponent
 
 public:
 	UDreamTaskComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	virtual ~UDreamTaskComponent() override;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDynamicMulticastDelegate, FDreamTaskSpecHandleContainer&, TaskData);
 
@@ -50,10 +51,6 @@ public:
 	// 任务列表
 	UPROPERTY(BlueprintReadOnly)
 	FDreamTaskSpecHandleContainer TaskData;
-
-	// 当任务列表无任务/任务全部完成时 自动关闭定时器
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bTimerAutomation = true;
 
 	// 定时器间隔
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -147,11 +144,21 @@ public:
 	UFUNCTION(BlueprintPure, Category = Functions)
 	const FDreamTaskSpecHandle& GetTaskByName(FName InTaskName);
 
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void ResetTaskByName(FName InName);
+
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void ResetTaskByClass(TSubclassOf<UDreamTask> InClass);
+
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void ResetTask(UDreamTask* InTask);
 public:
 	void ActiveTimer();
+	void StopTimer();
 
 private:
 	FTimerHandle TimerHandle;
+	bool bTimerActive = false;
 	void Updater();
 
 public:

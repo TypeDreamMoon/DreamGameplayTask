@@ -19,6 +19,11 @@ void SDreamTaskManageWidget_ItemRow::Construct(const FArguments& InArgs, const T
 	FSuperRowType::Construct(FSuperRowType::FArguments().Padding(2.f), InOwnerTableView);
 }
 
+void SDreamTaskManageWidget_ItemRow::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SMultiColumnTableRow<TSharedPtr<FDreamTaskManagerRowData>>::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+}
+
 TSharedRef<SWidget> SDreamTaskManageWidget_ItemRow::GenerateWidgetForColumn(const FName& ColumnName)
 {
 	if (ColumnName == "TaskName")

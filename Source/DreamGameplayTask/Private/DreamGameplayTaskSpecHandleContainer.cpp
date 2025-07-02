@@ -27,7 +27,22 @@ FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::AddHandle(FDreamTaskSpecHan
 
 bool FDreamTaskSpecHandleContainer::RemoveHandle(const FDreamTaskSpecHandle& InHandle)
 {
-	return GetHandles().RemoveSingle(InHandle) == 1;
+	bool bRemoved = false;
+	TArray<int32> IndicesToRemove;
+	for (int32 Index = 0; Index < Handles.Num(); ++Index)
+	{
+		if (Handles[Index] == InHandle)
+		{
+			IndicesToRemove.Add(Index);
+		}
+	}
+	// 倒序删除，避免索引错位
+	for (int32 i = IndicesToRemove.Num() - 1; i >= 0; --i)
+	{
+		Handles.RemoveAt(IndicesToRemove[i]);
+		bRemoved = true;
+	}
+	return bRemoved;
 }
 
 const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(UDreamTask* InTask)
@@ -40,6 +55,16 @@ const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(UDreamTask
 	return Handle ? *Handle : FDreamTaskSpecHandle::InvalidHandle();
 }
 
+FDreamTaskSpecHandle* FDreamTaskSpecHandleContainer::FindHandleMutable(UDreamTask* InTask)
+{
+	FDreamTaskSpecHandle* Handle = GetHandles().FindByPredicate([InTask](const FDreamTaskSpecHandle& InHandle)
+	{
+		return InTask == InHandle.GetTask();
+	});
+
+	return Handle;
+}
+
 const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(TSubclassOf<UDreamTask> InClass)
 {
 	FDreamTaskSpecHandle* Handle = GetHandles().FindByPredicate([InClass](const FDreamTaskSpecHandle& InHandle)
@@ -50,14 +75,34 @@ const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(TSubclassO
 	return Handle ? *Handle : FDreamTaskSpecHandle::InvalidHandle();
 }
 
+FDreamTaskSpecHandle* FDreamTaskSpecHandleContainer::FindHandleMutable(TSubclassOf<UDreamTask> InClass)
+{
+	FDreamTaskSpecHandle* Handle = GetHandles().FindByPredicate([InClass](const FDreamTaskSpecHandle& InHandle)
+	{
+		return InClass == InHandle.GetTask()->GetClass();
+	});
+	
+	return Handle;
+}
+
 const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(FName InName)
 {
 	FDreamTaskSpecHandle* Handle = GetHandles().FindByPredicate([InName](const FDreamTaskSpecHandle& InHandle)
 	{
 		return InName == InHandle.GetTask()->GetTaskName();
 	});
-
+	
 	return Handle ? *Handle : FDreamTaskSpecHandle::InvalidHandle();
+}
+
+FDreamTaskSpecHandle* FDreamTaskSpecHandleContainer::FindHandleMutable(FName InName)
+{
+	FDreamTaskSpecHandle* Handle = GetHandles().FindByPredicate([InName](const FDreamTaskSpecHandle& InHandle)
+	{
+		return InName == InHandle.GetTask()->GetTaskName();
+	});
+	
+	return Handle;
 }
 
 int32 FDreamTaskSpecHandleContainer::FindHandleIndex(const FDreamTaskSpecHandle& InHandle)
@@ -75,7 +120,8 @@ int32 FDreamTaskSpecHandleContainer::FindHandleIndex(const FDreamTaskSpecHandle&
 
 void FDreamTaskSpecHandleContainer::ClearHandles()
 {
-	GetHandles().Empty();
+	Handles.Empty(); // Clear all task handles
+	ContainerState = EDreamTaskSpecHandleContainerState::Empty; // Reset state to empty
 }
 
 int FDreamTaskSpecHandleContainer::SetHandles(const TArray<FDreamTaskSpecHandle>& InHandles)
@@ -129,36 +175,38 @@ void FDreamTaskSpecHandleContainer::UpdateHandles(float DeltaTime)
 
 void FDreamTaskSpecHandleContainer::ChangeContainerState()
 {
-	if (ContainerState & (EDreamTaskSpecHandleContainerState::Empty | EDreamTaskSpecHandleContainerState::None)) // 全空
+	int CompletedCount = 0;
+	for (FDreamTaskSpecHandle& Handle : GetHandles())
 	{
+		if (Handle.IsCompleted())
+			CompletedCount++;
+	}
+
+	// Reset state based on the number of completed tasks
+	if (CompletedCount == 0)
 		ContainerState = EDreamTaskSpecHandleContainerState::NoCompleted;
-	}
-	else if (ContainerState & EDreamTaskSpecHandleContainerState::AllCompleted) // 全满
-	{
+	else if (CompletedCount == Handles.Num())
+		ContainerState = EDreamTaskSpecHandleContainerState::AllCompleted;
+	else
 		ContainerState = EDreamTaskSpecHandleContainerState::SomeCompleted;
-	}
-	else if (ContainerState & EDreamTaskSpecHandleContainerState::SomeCompleted) // 一些
-	{
-		ContainerState = EDreamTaskSpecHandleContainerState::SomeCompleted;
-	}
 }
 
 bool FDreamTaskSpecHandleContainer::IsAllCompleted() const
 {
-	return ContainerState & EDreamTaskSpecHandleContainerState::AllCompleted;
+	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::AllCompleted);
 }
 
 bool FDreamTaskSpecHandleContainer::IsSomeCompleted() const
 {
-	return ContainerState & EDreamTaskSpecHandleContainerState::SomeCompleted;
+	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::SomeCompleted);
 }
 
 bool FDreamTaskSpecHandleContainer::IsNoCompleted() const
 {
-	return ContainerState & EDreamTaskSpecHandleContainerState::NoCompleted;
+	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::NoCompleted);
 }
 
 bool FDreamTaskSpecHandleContainer::IsEmpty() const
 {
-	return ContainerState & EDreamTaskSpecHandleContainerState::Empty;
+	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::Empty);
 }

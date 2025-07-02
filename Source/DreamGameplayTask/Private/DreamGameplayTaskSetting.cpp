@@ -49,3 +49,15 @@ bool UDreamGameplayTaskSetting::GetEnableDebug()
 		return false;
 	}
 }
+
+bool UDreamGameplayTaskSetting::GetEnableUpdaterDebug()
+{
+	if (Get())
+	{
+		return Get()->bEnableUpdaterDebug;
+	}
+	else
+	{
+		return false;
+	}
+}
