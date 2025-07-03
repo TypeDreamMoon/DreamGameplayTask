@@ -27,7 +27,8 @@ public class DreamGameplayTaskEditor : ModuleRules
 				"ContentBrowser",
 				"UnrealEd",
 				"DeveloperSettings",
-				"InputCore"
+				"InputCore", 
+				"Blutility"
 			}
 		);
 	}

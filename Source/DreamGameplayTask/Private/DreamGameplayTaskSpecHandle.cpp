@@ -185,7 +185,6 @@ void FDreamTaskSpecHandle::Update(float DeltaTime)
 		if (TaskPtr->bUseMaximumCompletionTime && IsTimeout())
 		{
 			TaskPtr->SetTaskState(EDreamTaskState::EDTS_Timeout);
-			DGT_DEBUG_LOG(Error, TEXT("Absdawdwd"))
 		}
 		
 	}

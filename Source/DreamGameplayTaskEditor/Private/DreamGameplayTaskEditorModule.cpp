@@ -18,8 +18,6 @@ void FDreamGameplayTaskEditorModule::StartupModule()
 	FDreamGameplayTaskEditorStyle::Initialize();
 	FDreamGameplayTaskEditorStyle::Register();
 
-	RegisterContentBrowserPathChange();
-
 	RegisterCommand();
 	MakeCommandList();
 	RegisterMenu();
@@ -28,16 +26,6 @@ void FDreamGameplayTaskEditorModule::StartupModule()
 void FDreamGameplayTaskEditorModule::ShutdownModule()
 {
 	FDreamGameplayTaskEditorStyle::Unreginster();
-}
-
-void FDreamGameplayTaskEditorModule::RegisterContentBrowserPathChange()
-{
-	FContentBrowserModule& ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
-	ContentBrowserModule.GetOnAssetPathChanged().AddLambda([this](const FString& Path)
-	{
-		CurrentContentBrowserPath = Path;
-		DGT_ED_LOG(Log, TEXT("Content Browser Path Changed: %s"), *Path);
-	});
 }
 
 void FDreamGameplayTaskEditorModule::RegisterCommand()

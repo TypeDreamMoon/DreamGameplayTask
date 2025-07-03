@@ -13,6 +13,7 @@ enum class EDreamTaskSpecHandleContainerState : uint8
 	NoCompleted = 1 << 1, // 全部未完成
 	SomeCompleted = 1 << 2, // 部分完成
 	AllCompleted = 1 << 3, // 全部
+	AllUseMaximumTimeCompleted = 1 << 4,
 };
 
 ENUM_CLASS_FLAGS(EDreamTaskSpecHandleContainerState)
@@ -108,6 +109,18 @@ public:
 	int32 FindHandleIndex(const FDreamTaskSpecHandle& InHandle);
 
 	/**
+	 * @brief 获取需要使用最大时间限制的任务句柄数组
+	 * 
+	 * 该函数返回一个包含所有需要使用最大时间限制的任务句柄的数组。
+	 * 这些任务句柄通常用于需要特殊时间管理的任务，可能用于超时处理或优先级调度。
+	 * 
+	 * @return TArray<FDreamTaskSpecHandle*> 包含FDreamTaskSpecHandle指针的数组，
+	 *         每个指针指向一个需要使用最大时间限制的任务规格
+	 */
+	TArray<FDreamTaskSpecHandle*> GetUseMaximumTimeHandles();
+
+
+	/**
 	 * @brief 清空容器中的所有任务句柄
 	 */
 	void ClearHandles();
@@ -137,6 +150,12 @@ public:
 	 * @return 全部完成返回true，否则返回false
 	 */
 	bool IsAllCompleted() const;
+
+	/**
+	 * @brief 检查所有任务是否都使用最大时间限制
+	 * @return 全部使用最大时间限制返回true，否则返回false
+	 */
+	bool IsAllUseMaximumTimeCompleted() const;
 
 	/**
 	 * @brief 检查是否有部分任务已完成

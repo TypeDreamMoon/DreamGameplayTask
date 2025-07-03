@@ -11,11 +11,7 @@ public:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
 
-public:
-    FString CurrentContentBrowserPath = TEXT("/All/Game");
-
 private:
-    void RegisterContentBrowserPathChange();
     void RegisterCommand();
     void MakeCommandList();
     TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);

@@ -61,9 +61,9 @@ FDreamTaskSpecHandle UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask
 
 	OnTaskListChanged.Broadcast(TaskData);
 	OnTaskListChangedDelegate.Broadcast(TaskData);
-	
+
 	ActiveTimer();
-	
+
 	return SpecHandle;
 }
 
@@ -209,18 +209,21 @@ void UDreamTaskComponent::ActiveTimer()
 	{
 		DGT_UPDATER_DEBUG_LOG(Warning, TEXT("Timer Active."));
 		GetOwner()->GetWorld()->GetTimerManager()
-			.SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
+		          .SetTimer(TimerHandle, this, &UDreamTaskComponent::Updater, TimerDeltaTime, true);
 		bTimerActive = true;
 	}
 }
 
 void UDreamTaskComponent::StopTimer()
 {
-	if (bTimerActive && GetOwner())
+	if (TaskData.IsAllUseMaximumTimeCompleted())
 	{
-		DGT_UPDATER_DEBUG_LOG(Warning, TEXT("Timer Stop."));
-		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-		bTimerActive = false;
+		if (bTimerActive && GetOwner())
+		{
+			DGT_UPDATER_DEBUG_LOG(Warning, TEXT("Timer Stop."));
+			GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+			bTimerActive = false;
+		}
 	}
 }
 

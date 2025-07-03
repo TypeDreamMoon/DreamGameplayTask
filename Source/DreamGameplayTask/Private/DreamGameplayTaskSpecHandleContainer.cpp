@@ -81,7 +81,7 @@ FDreamTaskSpecHandle* FDreamTaskSpecHandleContainer::FindHandleMutable(TSubclass
 	{
 		return InClass == InHandle.GetTask()->GetClass();
 	});
-	
+
 	return Handle;
 }
 
@@ -91,7 +91,7 @@ const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(FName InNa
 	{
 		return InName == InHandle.GetTask()->GetTaskName();
 	});
-	
+
 	return Handle ? *Handle : FDreamTaskSpecHandle::InvalidHandle();
 }
 
@@ -101,7 +101,7 @@ FDreamTaskSpecHandle* FDreamTaskSpecHandleContainer::FindHandleMutable(FName InN
 	{
 		return InName == InHandle.GetTask()->GetTaskName();
 	});
-	
+
 	return Handle;
 }
 
@@ -116,6 +116,21 @@ int32 FDreamTaskSpecHandleContainer::FindHandleIndex(const FDreamTaskSpecHandle&
 	}
 
 	return INDEX_NONE;
+}
+
+TArray<FDreamTaskSpecHandle*> FDreamTaskSpecHandleContainer::GetUseMaximumTimeHandles()
+{
+	TArray<FDreamTaskSpecHandle*> Result;
+
+	for (FDreamTaskSpecHandle& Handle : GetHandles())
+	{
+		if (Handle.IsUseMaximumTime())
+		{
+			Result.Add(&Handle);
+		}
+	}
+
+	return Result;
 }
 
 void FDreamTaskSpecHandleContainer::ClearHandles()
@@ -142,12 +157,17 @@ TArray<UDreamTask*> FDreamTaskSpecHandleContainer::BuildTaskArray()
 	return Result;
 }
 
+// Component -> TaskSpecHandleContainer -> TaskSpecHandle
 void FDreamTaskSpecHandleContainer::UpdateHandles(float DeltaTime)
 {
 	if (GetHandles().IsEmpty())
+	{
 		ContainerState = EDreamTaskSpecHandleContainerState::Empty;
+		return;
+	}
 
 	int CompletedNumber = 0;
+	int UseMaximumHandleNum = GetUseMaximumTimeHandles().Num();
 
 	for (FDreamTaskSpecHandle& Handle : GetHandles())
 	{
@@ -159,7 +179,11 @@ void FDreamTaskSpecHandleContainer::UpdateHandles(float DeltaTime)
 		}
 	}
 
-	if (CompletedNumber >= Handles.Num())
+	if (CompletedNumber >= UseMaximumHandleNum)
+	{
+		ContainerState = EDreamTaskSpecHandleContainerState::AllUseMaximumTimeCompleted;
+	}
+	else if (CompletedNumber >= GetHandles().Num())
 	{
 		ContainerState = EDreamTaskSpecHandleContainerState::AllCompleted;
 	}
@@ -194,6 +218,11 @@ void FDreamTaskSpecHandleContainer::ChangeContainerState()
 bool FDreamTaskSpecHandleContainer::IsAllCompleted() const
 {
 	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::AllCompleted);
+}
+
+bool FDreamTaskSpecHandleContainer::IsAllUseMaximumTimeCompleted() const
+{
+	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::AllUseMaximumTimeCompleted);
 }
 
 bool FDreamTaskSpecHandleContainer::IsSomeCompleted() const

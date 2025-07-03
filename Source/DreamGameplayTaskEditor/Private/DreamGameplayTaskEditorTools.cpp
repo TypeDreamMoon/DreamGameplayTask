@@ -5,6 +5,7 @@
 #include "DreamGameplayTaskEditorModule.h"
 #include "DreamGameplayTaskEditorSetting.h"
 #include "DreamGameplayTaskSetting.h"
+#include "EditorUtilityLibrary.h"
 #include "KismetCompilerModule.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Classes/DreamTask.h"
@@ -39,7 +40,8 @@ UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(UClass* 
 	KismetCompilerModule.GetBlueprintTypesForClass(Class, BlueprintClass, BlueprintGeneratedClass);
 
 	// Generate initial package and asset names
-	FString CurrentPath = FModuleManager::LoadModuleChecked<FDreamGameplayTaskEditorModule>("DreamGameplayTaskEditor").CurrentContentBrowserPath;
+	FString CurrentPath;
+	UEditorUtilityLibrary::GetCurrentContentBrowserPath(CurrentPath);
 	FString PackageName = CurrentPath.Right(CurrentPath.Len() - 4) / Name;
 	FString UName;
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
@@ -119,7 +121,8 @@ UObject* FDreamGameplayTaskEditorTools::CreateDataAssetByClass(TSubclassOf<UPrim
 
 	Factory->SupportedClass = Class;
 
-	FString CurrentPath = FModuleManager::LoadModuleChecked<FDreamGameplayTaskEditorModule>("DreamGameplayTaskEditor").CurrentContentBrowserPath;
+	FString CurrentPath;
+	UEditorUtilityLibrary::GetCurrentContentBrowserPath(CurrentPath);
 	const FString DefaultPath = CurrentPath.Right(CurrentPath.Len() - 4) / Name;
 
 	DGT_ED_LOG(Log, TEXT("%s"), *DefaultPath);
