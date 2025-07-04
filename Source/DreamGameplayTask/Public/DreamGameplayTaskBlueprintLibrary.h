@@ -363,6 +363,7 @@ public:
 
 	/**
 	 * 清空容器中的所有任务句柄
+	 * Warning!!! 警告!!! 使用此方法不会向Component发送任务列表更新消息 !!!
 	 * @param Container 要清空的容器
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")

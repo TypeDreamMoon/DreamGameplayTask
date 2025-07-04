@@ -129,6 +129,13 @@ bool UDreamTaskComponent::RemoveTaskByName(FName InRemoveTaskName)
 	return bRemoved;
 }
 
+void UDreamTaskComponent::ClearTasks()
+{
+	TaskData.ClearHandles();
+	OnTaskListChanged.Broadcast(TaskData);
+	OnTaskListChangedDelegate.Broadcast(TaskData);
+}
+
 void UDreamTaskComponent::UpdateTask(FName TaskName, const TArray<FName>& InConditionNames)
 {
 	TaskData.FindHandle(TaskName).GetTask()->UpdateTaskByName(InConditionNames);

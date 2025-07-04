@@ -39,8 +39,7 @@ public:
 
 	// 任务列表更新时 CPP
 	FTaskListDelegate OnTaskListChangedDelegate;
-
-
+	
 	// 任务更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskUpdate;
@@ -106,6 +105,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	bool RemoveTaskByName(FName InRemoveTaskName);
+	
+	/**
+	 * 清空任务列表
+	 */
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void ClearTasks();
 
 	/**
 	 * 更新任务 (Name) (ConditionNames)
