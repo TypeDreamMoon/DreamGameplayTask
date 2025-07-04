@@ -365,7 +365,7 @@ public:
 	 * 清空容器中的所有任务句柄
 	 * @param Container 要清空的容器
 	 */
-	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
 	static void ClearContainerHandles(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
 
 	/**
