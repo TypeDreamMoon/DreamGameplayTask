@@ -3,6 +3,7 @@
 
 #include "Classes/DreamTaskComponent.h"
 
+#include "DreamGameplayTaskBlueprintLibrary.h"
 #include "DreamGameplayTaskLog.h"
 #include "DreamGameplayTaskSetting.h"
 #include "Classes/DreamTask.h"
@@ -201,6 +202,11 @@ void UDreamTaskComponent::ResetTask(UDreamTask* InTask)
 	{
 		Handle->GetTask()->ResetTask();
 	}
+}
+
+TArray<UDreamTask*> UDreamTaskComponent::GetTaskArray()
+{
+	return UDreamGameplayTaskBlueprintLibrary::BuildContainerTaskArray(GetTaskData());
 }
 
 void UDreamTaskComponent::ActiveTimer()

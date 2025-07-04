@@ -26,7 +26,7 @@ protected:
 	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDynamicMulticastDelegate, FDreamTaskSpecHandleContainer&, TaskData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDynamicMulticastDelegate, const FDreamTaskSpecHandleContainer&, TaskData);
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FTaskListDelegate, FDreamTaskSpecHandleContainer&);
 
@@ -166,6 +166,20 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void ResetTask(UDreamTask* InTask);
+
+	/**
+	 * 获取任务列表数据
+	 * @return 任务列表数据
+	 */
+	UFUNCTION(BlueprintPure, Category = Functions)
+	FDreamTaskSpecHandleContainer& GetTaskData() { return TaskData; }
+
+	/**
+	 * 获取任务列表数据 (Array Task)
+	 * @return 获取到的任务列表数据
+	 */
+	UFUNCTION(BlueprintPure, Category = Functions)
+	TArray<UDreamTask*> GetTaskArray();
 
 public:
 	void ActiveTimer();
