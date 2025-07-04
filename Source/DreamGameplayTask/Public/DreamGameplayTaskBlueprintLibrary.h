@@ -39,7 +39,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Common")
 	static TArray<UDreamTask*> DestructDreamGameplayTaskSaveData(const FDreamTaskSaveData& Data);
 
-	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Common", Meta = (BlueprintAutocast = "InTaskClass"))
+	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Common", Meta = (DeterminesOutputType = "InTaskClass"))
 	static UDreamTaskData* GetTaskData(UDreamTask* InTask, TSubclassOf<UDreamTaskData> InTaskClass);
 
 #pragma endregion Common
