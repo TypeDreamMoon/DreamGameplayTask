@@ -194,7 +194,7 @@ public:
 	void ActiveTimer();
 	void StopTimer();
 
-	void DelegateCall_TaskListChanged(const FDreamTaskSpecHandleContainer& TaskData);
+	void DelegateCall_TaskListChanged(const FDreamTaskSpecHandleContainer& InTaskData);
 	void DelegateCall_TaskUpdate(const FDreamTaskSpecHandle& InTask);
 	void DelegateCall_TaskUpdate(UDreamTask* InTask);
 	void DelegateCall_TaskRemoved(const FDreamTaskSpecHandle& InTask);

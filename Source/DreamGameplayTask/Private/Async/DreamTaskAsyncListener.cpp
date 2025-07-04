@@ -43,7 +43,6 @@ void UDreamTaskAsyncListener::Activate()
 	Task->OnTaskUpdate.AddDynamic(this, &UDreamTaskAsyncListener::HandleUpdate);
 	Task->OnTaskCompleted.AddDynamic(this, &UDreamTaskAsyncListener::HandleCompleted);
 	Task->OnTaskConditionUpdate.AddDynamic(this, &UDreamTaskAsyncListener::HandleConditionUpdate);
-	Task->OnTaskStateUpdate.AddDynamic(this, &UDreamTaskAsyncListener::HandleStateUpdate);
 }
 
 void UDreamTaskAsyncListener::HandleInitialize(UDreamTask* InTask)
@@ -54,11 +53,6 @@ void UDreamTaskAsyncListener::HandleInitialize(UDreamTask* InTask)
 void UDreamTaskAsyncListener::HandleUpdate(UDreamTask* InTask)
 {
 	OnTaskUpdate.Broadcast(InTask);
-}
-
-void UDreamTaskAsyncListener::HandleStateUpdate(UDreamTask* InTask)
-{
-	OnTaskStateUpdate.Broadcast(InTask, InTask->GetTaskState());
 }
 
 void UDreamTaskAsyncListener::HandleCompleted(UDreamTask* InTask)

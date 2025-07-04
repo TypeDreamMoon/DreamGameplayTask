@@ -39,13 +39,6 @@ public:
 	FPinResult OnTaskUpdate;
 
 	/**
-	 * 蓝图可分配的事件委托，用于任务状态更新时触发
-	 * 该委托在任务状态发生变化时被调用，传递状态更新相关信息
-	 */
-	UPROPERTY(BlueprintAssignable)
-	FPinUpdateResult OnTaskStateUpdate;
-
-	/**
 	 * 蓝图可分配的事件委托，用于任务条件更新时触发
 	 * 该委托在任务的条件发生变化时被调用，可用于处理条件变更的逻辑
 	 */
@@ -105,9 +98,6 @@ protected:
 
 	UFUNCTION()
 	void HandleUpdate(UDreamTask* InTask);
-
-	UFUNCTION()
-	void HandleStateUpdate(UDreamTask* InTask);
 
 	UFUNCTION()
 	void HandleCompleted(UDreamTask* InTask);

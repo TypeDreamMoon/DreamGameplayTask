@@ -244,10 +244,10 @@ void UDreamTaskComponent::StopTimer()
 	}
 }
 
-void UDreamTaskComponent::DelegateCall_TaskListChanged(const FDreamTaskSpecHandleContainer& TaskData)
+void UDreamTaskComponent::DelegateCall_TaskListChanged(const FDreamTaskSpecHandleContainer& InTaskData)
 {
 	OnTaskListChanged.Broadcast(TaskData);
-	OnTaskListChangedDelegate.Broadcast(const_cast<FDreamTaskSpecHandleContainer&>(TaskData));
+	OnTaskListChangedDelegate.Broadcast(const_cast<FDreamTaskSpecHandleContainer&>(InTaskData));
 }
 
 void UDreamTaskComponent::DelegateCall_TaskUpdate(const FDreamTaskSpecHandle& InTask)
