@@ -62,7 +62,7 @@ TArray<UDreamTask*> UDreamGameplayTaskBlueprintLibrary::DestructDreamGameplayTas
 	return Result;
 }
 
-UDreamTaskData* UDreamGameplayTaskBlueprintLibrary::GetTaskData(UDreamTask* InTask, TSubclassOf<UDreamTask> InTaskClass)
+UDreamTaskData* UDreamGameplayTaskBlueprintLibrary::GetTaskData(UDreamTask* InTask, TSubclassOf<UDreamTaskData> InTaskClass)
 {
 	return InTask->GetTaskData();
 }

@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DreamGameplayTaskBlueprintLibrary.generated.h"
 
+class UDreamTaskData;
 class UDreamTaskComponent;
 class UDreamTaskType;
 class UDreamTask;
@@ -39,7 +40,7 @@ public:
 	static TArray<UDreamTask*> DestructDreamGameplayTaskSaveData(const FDreamTaskSaveData& Data);
 
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Common", Meta = (BlueprintAutocast = "InTaskClass"))
-	static UDreamTaskData* GetTaskData(UDreamTask* InTask, TSubclassOf<UDreamTask> InTaskClass);
+	static UDreamTaskData* GetTaskData(UDreamTask* InTask, TSubclassOf<UDreamTaskData> InTaskClass);
 
 #pragma endregion Common
 
