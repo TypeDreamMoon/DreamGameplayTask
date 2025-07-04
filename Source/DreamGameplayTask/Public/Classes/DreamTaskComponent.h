@@ -24,18 +24,20 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
+
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskListDynamicMulticastDelegate, FDreamTaskSpecHandleContainer&, TaskData);
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FTaskListDelegate, FDreamTaskSpecHandleContainer&);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskDelegate, UDreamTask*, Task);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTaskDelegate, const FDreamTaskSpecHandle&, Task);
 
 public:
 	// 任务列表更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskListDynamicMulticastDelegate OnTaskListChanged;
 
+	// 任务列表更新时 CPP
 	FTaskListDelegate OnTaskListChangedDelegate;
 
 
@@ -144,17 +146,33 @@ public:
 	UFUNCTION(BlueprintPure, Category = Functions)
 	const FDreamTaskSpecHandle& GetTaskByName(FName InTaskName);
 
+	/**
+	 * 重置任务 (Name)
+	 * @param InName 要重置的任务名称
+	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void ResetTaskByName(FName InName);
 
+	/**
+	 * 重置任务 (Class)
+	 * @param InClass 要重置的任务类
+	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void ResetTaskByClass(TSubclassOf<UDreamTask> InClass);
 
+	/**
+	 * 重置任务 (Task)
+	 * @param InTask 要重置的任务
+	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void ResetTask(UDreamTask* InTask);
+
 public:
 	void ActiveTimer();
 	void StopTimer();
+
+	void OnTaskChanged(UDreamTask* InTask);
+	void OnTaskStateChanged(UDreamTask* InTask);
 
 private:
 	FTimerHandle TimerHandle;

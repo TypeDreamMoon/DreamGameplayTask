@@ -227,6 +227,16 @@ void UDreamTaskComponent::StopTimer()
 	}
 }
 
+void UDreamTaskComponent::OnTaskChanged(UDreamTask* InTask)
+{
+	OnTaskUpdate.Broadcast(TaskData.FindHandle(InTask));
+}
+
+void UDreamTaskComponent::OnTaskStateChanged(UDreamTask* InTask)
+{
+	OnTaskStateUpdate.Broadcast(TaskData.FindHandle(InTask));
+}
+
 void UDreamTaskComponent::Updater()
 {
 	if (!IsValid(this))

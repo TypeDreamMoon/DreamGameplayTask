@@ -90,7 +90,7 @@ void UDreamTask::UpdateTaskByName(TArray<FName> ConditionNames)
 				OnTaskConditionUpdate.Broadcast(this);
 
 				BP_TaskUpdate();
-				OwnerComponent->OnTaskUpdate.Broadcast(this);
+				OwnerComponent->OnTaskChanged(this);
 				OnTaskUpdate.Broadcast(this);
 
 				for (auto RelatedActor : CachedRelatedActors)
@@ -246,8 +246,8 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 	// 如果组件有效，广播组件层级事件
 	if (OwnerComponent)
 	{
-		OwnerComponent->OnTaskUpdate.Broadcast(this);
-		OwnerComponent->OnTaskStateUpdate.Broadcast(this);
+		OwnerComponent->OnTaskChanged(this);
+		OwnerComponent->OnTaskStateChanged(this);
 	}
 	else
 	{
