@@ -44,12 +44,13 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskUpdate;
 
-	// 任务状态更新时
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
-	FTaskDelegate OnTaskStateUpdate;
-
+	// 任务移除时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskRemoved;
+
+	// 任务重置时
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
+	FTaskDelegate OnTaskReset;
 
 public:
 	// 任务列表
@@ -193,8 +194,13 @@ public:
 	void ActiveTimer();
 	void StopTimer();
 
-	void OnTaskChanged(UDreamTask* InTask);
-	void OnTaskStateChanged(UDreamTask* InTask);
+	void DelegateCall_TaskListChanged(const FDreamTaskSpecHandleContainer& TaskData);
+	void DelegateCall_TaskUpdate(const FDreamTaskSpecHandle& InTask);
+	void DelegateCall_TaskUpdate(UDreamTask* InTask);
+	void DelegateCall_TaskRemoved(const FDreamTaskSpecHandle& InTask);
+	void DelegateCall_TaskRemoved(UDreamTask* InTask);	
+	void DelegateCall_TaskReset(const FDreamTaskSpecHandle& InTask);
+	void DelegateCall_TaskReset(UDreamTask* InTask);
 
 private:
 	FTimerHandle TimerHandle;

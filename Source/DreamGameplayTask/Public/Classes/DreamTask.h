@@ -240,10 +240,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskUpdate;
 
-	// 任务状态更新时
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
-	FTaskDelegate OnTaskStateUpdate;
-
 	// 任务条件更新时
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskConditionUpdate;
@@ -251,6 +247,14 @@ public:
 	// 任务完成时 
 	UPROPERTY(BlueprintAssignable, Category = Delegate)
 	FTaskDelegate OnTaskCompleted;
+
+	// 任务移除时
+	UPROPERTY(BlueprintAssignable, Category = Delegate)
+	FTaskDelegate OnTaskRemoved;
+
+	// 任务重置时
+	UPROPERTY(BlueprintAssignable, Category = Delegate)
+	FTaskDelegate OnTaskReset;
 
 public:
 	// 任务初始化时
@@ -285,8 +289,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Accept"))
 	void BP_TaskAccept();
 
+	// 任务移除时
 	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Remove"))
 	void BP_TaskRemove();
+
+	// 任务重置时
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Reset"))
+	void BP_TaskReset();
 
 public:
 	static UDreamTask* Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32> Progress);
@@ -294,8 +303,9 @@ public:
 public:
 	virtual UWorld* GetWorld() const override;
 
-	void ResetTask_Internal();
-	void RemoveTask_Internal();
+	void DelegateCall_TaskUpdate(bool bCallCondition);
+	void DelegateCall_TaskReset();
+	void DelegateCall_TaskRemoved();
 
 protected:
 	virtual void CompletedTask_Internal();

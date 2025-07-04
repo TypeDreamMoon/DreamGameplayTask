@@ -86,12 +86,7 @@ void UDreamTask::UpdateTaskByName(TArray<FName> ConditionNames)
 		{
 			if (TaskCompletedCondition.UpdateConditionByName(Element))
 			{
-				BP_TaskConditionUpdate();
-				OnTaskConditionUpdate.Broadcast(this);
-
-				BP_TaskUpdate();
-				OwnerComponent->OnTaskChanged(this);
-				OnTaskUpdate.Broadcast(this);
+				DelegateCall_TaskUpdate(true);
 
 				for (auto RelatedActor : CachedRelatedActors)
 				{
@@ -138,14 +133,11 @@ UDreamTaskData* UDreamTask::GetTaskData() const
 
 void UDreamTask::RefreshTask()
 {
-	OnTaskStateUpdate.Broadcast(this);
-	OnTaskConditionUpdate.Broadcast(this);
-	OnTaskUpdate.Broadcast(this);
+	DelegateCall_TaskUpdate(true);
 
 	if (OwnerComponent)
 	{
-		OwnerComponent->OnTaskStateChanged(this);
-		OwnerComponent->OnTaskChanged(this);
+		OwnerComponent->DelegateCall_TaskUpdate(this);
 	}
 }
 
@@ -157,19 +149,8 @@ void UDreamTask::ResetTask()
 	}
 	else
 	{
-		ResetTask_Internal();
+		DelegateCall_TaskReset();
 	}
-}
-
-void UDreamTask::ResetTask_Internal()
-{
-	TaskCompletedCondition.Reset();
-	SetTaskState(EDreamTaskState::EDTS_Accept);
-}
-
-void UDreamTask::RemoveTask_Internal()
-{
-	BP_TaskRemove();
 }
 
 void UDreamTask::BP_TaskCompleted_Implementation()
@@ -208,6 +189,10 @@ void UDreamTask::BP_TaskRemove_Implementation()
 {
 }
 
+void UDreamTask::BP_TaskReset_Implementation()
+{
+}
+
 UDreamTask* UDreamTask::Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32> Progress)
 {
 	if (!Class) return nullptr;
@@ -225,6 +210,40 @@ UWorld* UDreamTask::GetWorld() const
 		return nullptr;
 	}
 	return GetOuter()->GetWorld();
+}
+
+void UDreamTask::DelegateCall_TaskReset()
+{
+	TaskCompletedCondition.Reset();
+	SetTaskState(EDreamTaskState::EDTS_Accept);
+	OnTaskReset.Broadcast(this);
+	BP_TaskReset();
+
+	if (OwnerComponent)
+		OwnerComponent->DelegateCall_TaskReset(this);
+}
+
+void UDreamTask::DelegateCall_TaskRemoved()
+{
+	OnTaskRemoved.Broadcast(this);
+	BP_TaskRemove();
+
+	if (OwnerComponent)
+		OwnerComponent->DelegateCall_TaskRemoved(this);
+}
+
+void UDreamTask::DelegateCall_TaskUpdate(bool bCallCondition)
+{
+	if (bCallCondition)
+	{
+		OnTaskConditionUpdate.Broadcast(this);
+		BP_TaskConditionUpdate();
+	}
+	BP_TaskUpdate();
+	OnTaskUpdate.Broadcast(this);
+
+	if (OwnerComponent)
+		OwnerComponent->DelegateCall_TaskUpdate(this);
 }
 
 void UDreamTask::CompletedTask_Internal()
@@ -257,24 +276,6 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 {
 	// 更新状态
 	TaskState = NewState;
-
-	// 先触发 Blueprint 事件，再广播，以确保 BP 能拦截或扩展行为
-	BP_TaskUpdate();
-
-	// 广播 C++ 事件
-	OnTaskUpdate.Broadcast(this);
-	OnTaskStateUpdate.Broadcast(this);
-
-	// 如果组件有效，广播组件层级事件
-	if (OwnerComponent)
-	{
-		OwnerComponent->OnTaskChanged(this);
-		OwnerComponent->OnTaskStateChanged(this);
-	}
-	else
-	{
-		DGT_LOG(Warning, TEXT("UpdateTaskState_Internal: OwnerComponent is null when updating state"));
-	}
 
 	// 根据不同状态执行专属逻辑，并在完成/失败/超时后停止定时
 	if (OwnerComponent)
@@ -318,4 +319,6 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 			break;
 		}
 	}
+
+	DelegateCall_TaskUpdate(false);
 }

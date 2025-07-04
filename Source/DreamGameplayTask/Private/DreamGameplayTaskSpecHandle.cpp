@@ -198,7 +198,7 @@ void FDreamTaskSpecHandle::Reset()
 	
 	if (UDreamTask* TaskPtr = Task.Get())
 	{
-		TaskPtr->ResetTask_Internal();
+		TaskPtr->DelegateCall_TaskReset();
 	}
 }
 

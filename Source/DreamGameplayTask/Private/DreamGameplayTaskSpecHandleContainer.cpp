@@ -138,7 +138,7 @@ void FDreamTaskSpecHandleContainer::ClearHandles()
 	// Pre Remove
 	for (auto Element : BuildTaskArray())
 	{
-		Element->RemoveTask_Internal();
+		Element->DelegateCall_TaskRemoved();
 	}
 
 	// Clear

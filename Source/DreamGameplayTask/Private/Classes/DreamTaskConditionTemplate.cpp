@@ -30,10 +30,7 @@ void UDreamTaskConditionTemplate::SetCount(int32 InValue)
 	{
 		// Update task
 		OwnerTask->CheckTaskCompleted();
-		OwnerTask->OnTaskConditionUpdate.Broadcast(OwnerTask);
-		OwnerTask->BP_TaskConditionUpdate();
-		OwnerTask->OnTaskUpdate.Broadcast(OwnerTask);
-		OwnerTask->BP_TaskUpdate();
+		OwnerTask->DelegateCall_TaskUpdate(true);
 	}
 }
 

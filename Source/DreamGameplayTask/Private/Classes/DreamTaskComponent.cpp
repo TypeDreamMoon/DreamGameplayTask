@@ -36,7 +36,8 @@ void UDreamTaskComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	OnTaskListChanged.Clear();
 	OnTaskListChangedDelegate.Clear();
 	OnTaskUpdate.Clear();
-	OnTaskStateUpdate.Clear();
+	OnTaskRemoved.Clear();
+	OnTaskReset.Clear();
 	if (bTimerActive && GetOwner())
 	{
 		GetOwner()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
@@ -60,8 +61,7 @@ FDreamTaskSpecHandle UDreamTaskComponent::GiveTaskByClass(TSubclassOf<UDreamTask
 	Task->InitializeTask(this, InPayload);
 	FDreamTaskSpecHandle& SpecHandle = TaskData.AddHandle(FDreamTaskSpecHandle(Task, FDateTime::Now()));
 
-	OnTaskListChanged.Broadcast(TaskData);
-	OnTaskListChangedDelegate.Broadcast(TaskData);
+	DelegateCall_TaskListChanged(GetTaskData());
 
 	ActiveTimer();
 
@@ -72,8 +72,8 @@ void UDreamTaskComponent::InitializeTaskList(FDreamTaskSpecHandleContainer NewLi
 {
 	TaskData.ClearHandles();
 	TaskData.SetHandles(NewList.GetHandles());
-	OnTaskListChanged.Broadcast(TaskData);
-	OnTaskListChangedDelegate.Broadcast(TaskData);
+
+	DelegateCall_TaskListChanged(GetTaskData());
 }
 
 bool UDreamTaskComponent::HasTaskByClass(TSubclassOf<UDreamTask> InCheckTaskClass)
@@ -99,11 +99,13 @@ bool UDreamTaskComponent::RemoveTaskByClass(TSubclassOf<UDreamTask> InRemoveTask
 	{
 		return false;
 	}
-	OnTaskRemoved.Broadcast(Handle);
-	Handle.GetTask()->RemoveTask_Internal();
+	
+	Handle.GetTask()->DelegateCall_TaskRemoved();
+	
 	TaskData.RemoveHandle(Handle);
-	OnTaskListChanged.Broadcast(TaskData);
-	OnTaskListChangedDelegate.Broadcast(TaskData);
+	
+	DelegateCall_TaskListChanged(GetTaskData());
+	
 	return true;
 }
 
@@ -120,15 +122,13 @@ bool UDreamTaskComponent::RemoveTaskByName(FName InRemoveTaskName)
 	bool bRemoved = false;
 	for (const FDreamTaskSpecHandle& R : ToRemove)
 	{
-		OnTaskRemoved.Broadcast(R);
-		R.GetTask()->RemoveTask_Internal();
+		R.GetTask()->DelegateCall_TaskRemoved();
 		TaskData.RemoveHandle(R);
 		bRemoved = true;
 	}
 	if (bRemoved)
 	{
-		OnTaskListChanged.Broadcast(TaskData);
-		OnTaskListChangedDelegate.Broadcast(TaskData);
+		DelegateCall_TaskListChanged(GetTaskData());
 	}
 	return bRemoved;
 }
@@ -136,8 +136,8 @@ bool UDreamTaskComponent::RemoveTaskByName(FName InRemoveTaskName)
 void UDreamTaskComponent::ClearTasks()
 {
 	TaskData.ClearHandles();
-	OnTaskListChanged.Broadcast(TaskData);
-	OnTaskListChangedDelegate.Broadcast(TaskData);
+	
+	DelegateCall_TaskListChanged(GetTaskData());
 }
 
 void UDreamTaskComponent::UpdateTask(FName TaskName, const TArray<FName>& InConditionNames)
@@ -244,14 +244,44 @@ void UDreamTaskComponent::StopTimer()
 	}
 }
 
-void UDreamTaskComponent::OnTaskChanged(UDreamTask* InTask)
+void UDreamTaskComponent::DelegateCall_TaskListChanged(const FDreamTaskSpecHandleContainer& TaskData)
 {
-	OnTaskUpdate.Broadcast(TaskData.FindHandle(InTask));
+	OnTaskListChanged.Broadcast(TaskData);
+	OnTaskListChangedDelegate.Broadcast(const_cast<FDreamTaskSpecHandleContainer&>(TaskData));
 }
 
-void UDreamTaskComponent::OnTaskStateChanged(UDreamTask* InTask)
+void UDreamTaskComponent::DelegateCall_TaskUpdate(const FDreamTaskSpecHandle& InTask)
 {
-	OnTaskStateUpdate.Broadcast(TaskData.FindHandle(InTask));
+	OnTaskUpdate.Broadcast(InTask);
+}
+
+void UDreamTaskComponent::DelegateCall_TaskUpdate(UDreamTask* InTask)
+{
+	const FDreamTaskSpecHandle& Handle = TaskData.FindHandle(InTask);
+	OnTaskUpdate.Broadcast(Handle);
+}
+
+void UDreamTaskComponent::DelegateCall_TaskRemoved(const FDreamTaskSpecHandle& InTask)
+{
+	OnTaskRemoved.Broadcast(InTask);
+}
+
+void UDreamTaskComponent::DelegateCall_TaskRemoved(UDreamTask* InTask)
+{
+	const FDreamTaskSpecHandle& Handle = TaskData.FindHandle(InTask);
+	OnTaskRemoved.Broadcast(Handle);
+}
+
+void UDreamTaskComponent::DelegateCall_TaskReset(const FDreamTaskSpecHandle& InTask)
+{
+	OnTaskReset.Broadcast(InTask);
+}
+
+void UDreamTaskComponent::DelegateCall_TaskReset(UDreamTask* InTask)
+{
+	const FDreamTaskSpecHandle& Handle = TaskData.FindHandle(InTask);
+
+	OnTaskReset.Broadcast(Handle);
 }
 
 void UDreamTaskComponent::Updater()
