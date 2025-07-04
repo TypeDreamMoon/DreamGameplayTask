@@ -275,6 +275,7 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 				OwnerComponent->TaskData.FindHandleMutable(this)->SetEndTime(FDateTime::Now());
 			}
 			BP_TaskCompleted();
+			OnTaskCompleted.Broadcast(this);
 			OwnerComponent->StopTimer();
 			break;
 

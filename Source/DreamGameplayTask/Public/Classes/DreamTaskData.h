@@ -9,8 +9,25 @@
 /**
  * Custom Task Data
  */
-UCLASS(EditInlineNew, Blueprintable, Abstract)
+UCLASS(EditInlineNew, Blueprintable)
 class DREAMGAMEPLAYTASK_API UDreamTaskData : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	TSoftObjectPtr<UTexture2D> TaskIcon;
+
+	UPROPERTY(EditAnywhere)
+	TSoftObjectPtr<UTexture2D> TaskImage;
+
+public:
+	UFUNCTION(BlueprintPure)
+	UTexture2D* GetTaskIcon() const;
+
+	UFUNCTION(BlueprintPure)
+	UTexture2D* GetTaskImage() const;
+
+public:
+	virtual UWorld* GetWorld() const override;
 };

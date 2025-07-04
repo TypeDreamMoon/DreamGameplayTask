@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DreamGameplayTaskTypes.h"
+#include "DreamTaskData.h"
 #include "UObject/Object.h"
 #include "DreamTask.generated.h"
 
