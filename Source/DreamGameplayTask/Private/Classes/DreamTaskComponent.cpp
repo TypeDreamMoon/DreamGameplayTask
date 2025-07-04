@@ -99,6 +99,8 @@ bool UDreamTaskComponent::RemoveTaskByClass(TSubclassOf<UDreamTask> InRemoveTask
 	{
 		return false;
 	}
+	OnTaskRemoved.Broadcast(Handle);
+	Handle.GetTask()->RemoveTask_Internal();
 	TaskData.RemoveHandle(Handle);
 	OnTaskListChanged.Broadcast(TaskData);
 	OnTaskListChangedDelegate.Broadcast(TaskData);
@@ -118,6 +120,8 @@ bool UDreamTaskComponent::RemoveTaskByName(FName InRemoveTaskName)
 	bool bRemoved = false;
 	for (const FDreamTaskSpecHandle& R : ToRemove)
 	{
+		OnTaskRemoved.Broadcast(R);
+		R.GetTask()->RemoveTask_Internal();
 		TaskData.RemoveHandle(R);
 		bRemoved = true;
 	}

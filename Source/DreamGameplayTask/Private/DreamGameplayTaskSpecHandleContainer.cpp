@@ -135,6 +135,13 @@ TArray<FDreamTaskSpecHandle*> FDreamTaskSpecHandleContainer::GetUseMaximumTimeHa
 
 void FDreamTaskSpecHandleContainer::ClearHandles()
 {
+	// Pre Remove
+	for (auto Element : BuildTaskArray())
+	{
+		Element->RemoveTask_Internal();
+	}
+
+	// Clear
 	Handles.Empty(); // Clear all task handles
 	ContainerState = EDreamTaskSpecHandleContainerState::Empty; // Reset state to empty
 }

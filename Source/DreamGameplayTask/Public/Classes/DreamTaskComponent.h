@@ -48,6 +48,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = Delegates)
 	FTaskDelegate OnTaskStateUpdate;
 
+	UPROPERTY(BlueprintAssignable, Category = Delegates)
+	FTaskDelegate OnTaskRemoved;
+
 public:
 	// 任务列表
 	UPROPERTY(BlueprintReadOnly)

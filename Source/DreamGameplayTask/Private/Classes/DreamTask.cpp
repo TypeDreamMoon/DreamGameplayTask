@@ -167,6 +167,11 @@ void UDreamTask::ResetTask_Internal()
 	SetTaskState(EDreamTaskState::EDTS_Accept);
 }
 
+void UDreamTask::RemoveTask_Internal()
+{
+	BP_TaskRemove();
+}
+
 void UDreamTask::BP_TaskCompleted_Implementation()
 {
 }
@@ -196,6 +201,10 @@ void UDreamTask::BP_TaskAccept_Implementation()
 }
 
 void UDreamTask::BP_TaskGoing_Implementation()
+{
+}
+
+void UDreamTask::BP_TaskRemove_Implementation()
 {
 }
 

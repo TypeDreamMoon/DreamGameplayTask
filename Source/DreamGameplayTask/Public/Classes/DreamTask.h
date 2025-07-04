@@ -285,6 +285,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Accept"))
 	void BP_TaskAccept();
 
+	UFUNCTION(BlueprintNativeEvent, Category = Events, Meta = (DisplayName = "Task Remove"))
+	void BP_TaskRemove();
+
 public:
 	static UDreamTask* Create(TSubclassOf<UDreamTask> Class, TMap<FName, int32> Progress);
 
@@ -292,6 +295,7 @@ public:
 	virtual UWorld* GetWorld() const override;
 
 	void ResetTask_Internal();
+	void RemoveTask_Internal();
 
 protected:
 	virtual void CompletedTask_Internal();
