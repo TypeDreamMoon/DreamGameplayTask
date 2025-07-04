@@ -136,6 +136,19 @@ UDreamTaskData* UDreamTask::GetTaskData() const
 	return TaskData;
 }
 
+void UDreamTask::RefreshTask()
+{
+	OnTaskStateUpdate.Broadcast(this);
+	OnTaskConditionUpdate.Broadcast(this);
+	OnTaskUpdate.Broadcast(this);
+
+	if (OwnerComponent)
+	{
+		OwnerComponent->OnTaskStateChanged(this);
+		OwnerComponent->OnTaskChanged(this);
+	}
+}
+
 void UDreamTask::ResetTask()
 {
 	if (bUseMaximumCompletionTime)

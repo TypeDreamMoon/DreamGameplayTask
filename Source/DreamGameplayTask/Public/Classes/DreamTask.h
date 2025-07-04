@@ -219,6 +219,12 @@ public:
 	bool IsFailed() const { return EnumHasAnyFlags(TaskState, EDreamTaskState::EDTS_Failed); }
 
 	/**
+	 * 手动刷新任务
+	 */
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void RefreshTask();
+
+	/**
 	 * 重置任务
 	 */
 	UFUNCTION(BlueprintCallable, Category = Functions)

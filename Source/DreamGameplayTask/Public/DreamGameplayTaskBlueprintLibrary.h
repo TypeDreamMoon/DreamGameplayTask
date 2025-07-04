@@ -68,6 +68,15 @@ public:
 	static UDreamTask* GetHandleTask(const FDreamTaskSpecHandle& Handle);
 
 	/**
+	 * 获取任务句柄对应的任务条件对象
+	 * @param Handle 要查询的任务句柄
+	 * @param ConditionName 要查询的条件名称
+	 * @return 对应的任务条件对象指针，无效句柄返回nullptr
+	 */
+	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Handles")
+	static UDreamTaskConditionTemplate* GetHandleTaskCondition(const FDreamTaskSpecHandle& Handle, FName ConditionName);
+
+	/**
 	 * 获取任务所属的任务组件
 	 * @param Handle 要查询的任务句柄  
 	 * @return 拥有该任务的任务组件

@@ -111,6 +111,16 @@ UDreamTask* UDreamGameplayTaskBlueprintLibrary::GetHandleTask(const FDreamTaskSp
 	return Handle.GetTask();
 }
 
+UDreamTaskConditionTemplate* UDreamGameplayTaskBlueprintLibrary::GetHandleTaskCondition(const FDreamTaskSpecHandle& Handle, FName ConditionName)
+{
+	if (UDreamTask* Task = GetHandleTask(Handle))
+	{
+		return GetConditionByName(Task->TaskCompletedCondition, ConditionName);
+	}
+
+	return nullptr;
+}
+
 UDreamTaskComponent* UDreamGameplayTaskBlueprintLibrary::GetHandleTaskOwnerComponent(const FDreamTaskSpecHandle& Handle)
 {
 	return Handle.GetOwnerComponent();

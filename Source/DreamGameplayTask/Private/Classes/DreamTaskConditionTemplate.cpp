@@ -28,9 +28,19 @@ void UDreamTaskConditionTemplate::SetCount(int32 InValue)
 
 	if (OwnerTask)
 	{
+		// Update task
 		OwnerTask->CheckTaskCompleted();
+		OwnerTask->OnTaskConditionUpdate.Broadcast(OwnerTask);
 		OwnerTask->BP_TaskConditionUpdate();
+		OwnerTask->OnTaskUpdate.Broadcast(OwnerTask);
+		OwnerTask->BP_TaskUpdate();
 	}
+}
+
+void UDreamTaskConditionTemplate::SetCompletedCount(int32 InValue)
+{
+	CompletedCount = InValue;
+	SetCount(GetCount());
 }
 
 void UDreamTaskConditionTemplate::Update()

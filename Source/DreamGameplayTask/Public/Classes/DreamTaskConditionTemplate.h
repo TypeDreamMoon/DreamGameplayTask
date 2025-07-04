@@ -71,6 +71,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void SetCount(int32 InValue);
 
+	// 设置完成数量
+	UFUNCTION(BlueprintCallable, Category = Functions)
+	void SetCompletedCount(int32 InValue);
+
 	// 更新条件
 	UFUNCTION(BlueprintCallable, Category = Functions)
 	void Update();
