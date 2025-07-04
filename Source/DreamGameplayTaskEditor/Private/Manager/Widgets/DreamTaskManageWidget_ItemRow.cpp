@@ -26,6 +26,9 @@ void SDreamTaskManageWidget_ItemRow::Tick(const FGeometry& AllottedGeometry, con
 
 TSharedRef<SWidget> SDreamTaskManageWidget_ItemRow::GenerateWidgetForColumn(const FName& ColumnName)
 {
+	if (!ItemShow.IsValid() || ItemShow->Task.Get() == nullptr || ItemShow->Blueprint.Get() == nullptr)
+		return SNew(SErrorText).ErrorText(MAKE_TEXT(TEXT("Error")));
+	
 	if (ColumnName == "TaskName")
 	{
 		return SNew(SOverlay)

@@ -27,6 +27,16 @@ UDreamTaskAsyncListener* UDreamTaskAsyncListener::CreateListener(UObject* WorldC
 	return Node;
 }
 
+UDreamTaskAsyncListener* UDreamTaskAsyncListener::CreateListenerWithHandle(UObject* WorldContextObject, const FDreamTaskSpecHandle& SpecHandle)
+{
+	UDreamTaskAsyncListener* Node = NewObject<UDreamTaskAsyncListener>();
+	Node->Task = SpecHandle.GetTask();
+	Node->WorldContext = WorldContextObject;
+	Node->RegisterWithGameInstance(WorldContextObject);
+
+	return Node;
+}
+
 void UDreamTaskAsyncListener::Activate()
 {
 	Task->OnTaskCompleted.AddDynamic(this, &UDreamTaskAsyncListener::HandleInitialize);

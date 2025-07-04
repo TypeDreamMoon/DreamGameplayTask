@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "DreamTaskAsyncListener.generated.h"
 
+struct FDreamTaskSpecHandle;
 enum class EDreamTaskState : uint8;
 class UDreamTask;
 class UDreamTaskComponent;
@@ -83,6 +84,18 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Async", Meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
 	static UDreamTaskAsyncListener* CreateListener(UObject* WorldContextObject, UDreamTask* InTask);
+
+	/**
+	 * 为现有任务句柄创建任务监听器
+	 * 
+	 * @param WorldContextObject 提供世界上下文的对象
+	 * @param SpecHandle 任务句柄
+	 * @return 配置好的任务监听器实例
+	 * 
+	 * @note 适用于从任务句柄中获取任务实例，并自动绑定任务事件委托
+	 */
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Async", Meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
+	static UDreamTaskAsyncListener* CreateListenerWithHandle(UObject* WorldContextObject, const FDreamTaskSpecHandle& SpecHandle);
 
 protected:
 	virtual void Activate() override;
