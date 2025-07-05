@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "DreamGameplayTaskSpecHandle.generated.h"
 
+enum class EDreamTaskPriority : uint8;
+class UDreamTaskType;
 class UDreamTaskConditionTemplate;
 class UDreamTaskComponent;
 class UDreamTask;
@@ -267,4 +269,10 @@ public:
 	 * @return 返回布尔值表示是否匹配
 	 */
 	bool operator==(const TSubclassOf<UDreamTask>& Class) const;
+
+	bool operator==(const UDreamTaskType* InTaskType) const;
+
+	bool operator==(EDreamTaskState InState) const;
+
+	bool operator==(EDreamTaskPriority InPriority) const;
 };

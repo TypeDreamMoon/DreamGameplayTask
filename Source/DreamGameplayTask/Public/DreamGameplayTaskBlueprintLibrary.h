@@ -55,6 +55,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Filter")
 	static TArray<UDreamTask*> FilterTasksByState(const TArray<UDreamTask*>& Tasks, EDreamTaskState State);
+
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Filter")
+	static TArray<FDreamTaskSpecHandle> FilterHandlesByType(TArray<FDreamTaskSpecHandle>& Handles, UDreamTaskType* TaskType);
+
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Filter")
+	static TArray<FDreamTaskSpecHandle> FilterHandlesByPriority(TArray<FDreamTaskSpecHandle>& Handles, EDreamTaskPriority Priority);
+
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Filter")
+	static TArray<FDreamTaskSpecHandle> FilterHandlesByState(TArray<FDreamTaskSpecHandle>& Handles, EDreamTaskState State);
 #pragma endregion Filter
 
 #pragma region Handles
@@ -131,7 +140,8 @@ public:
 	 * @return 任务条件名称到条件模板的映射表引用
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Handles")
-	static TMap<FName, UDreamTaskConditionTemplate*>& GetHandleConditions(UPARAM(Ref) FDreamTaskSpecHandle& Handle);
+	static TMap<FName, UDreamTaskConditionTemplate*>& GetHandleConditions(UPARAM(Ref)
+		FDreamTaskSpecHandle& Handle);
 
 	/**
 	 * 检查任务是否设置了最大时间限制
@@ -179,7 +189,8 @@ public:
 	 * @param InTime 要设置的运行时间(TimeSpan格式)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Handles")
-	static void SetHandleRunningTime(UPARAM(Ref) FDreamTaskSpecHandle& Handle, FTimespan InTime);
+	static void SetHandleRunningTime(UPARAM(Ref)
+	                                 FDreamTaskSpecHandle& Handle, FTimespan InTime);
 
 	/**
 	 * 设置任务的开始时间
@@ -187,7 +198,8 @@ public:
 	 * @param InTime 要设置的开始时间(DateTime格式)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Handles")
-	static void SetHandleStartTime(UPARAM(Ref) FDreamTaskSpecHandle& Handle, FDateTime InTime);
+	static void SetHandleStartTime(UPARAM(Ref)
+	                               FDreamTaskSpecHandle& Handle, FDateTime InTime);
 
 	/**
 	 * 设置任务的结束时间
@@ -195,7 +207,8 @@ public:
 	 * @param InTime 要设置的结束时间(DateTime格式)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Handles")
-	static void SetHandleEndTime(UPARAM(Ref) FDreamTaskSpecHandle& Handle, FDateTime InTime);
+	static void SetHandleEndTime(UPARAM(Ref)
+	                             FDreamTaskSpecHandle& Handle, FDateTime InTime);
 
 	/**
 	 * 增加任务的运行时间
@@ -203,7 +216,8 @@ public:
 	 * @param InTime 要增加的时间增量(TimeSpan格式)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Handles")
-	static void AddHandleTime(UPARAM(Ref) FDreamTaskSpecHandle& Handle, FTimespan InTime);
+	static void AddHandleTime(UPARAM(Ref)
+	                          FDreamTaskSpecHandle& Handle, FTimespan InTime);
 
 	/**
 	 * 以秒为单位增加任务的运行时间
@@ -211,7 +225,8 @@ public:
 	 * @param InSeconds 要增加的秒数
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Handles")
-	static void AddHandleTimeWithSeconds(UPARAM(Ref) FDreamTaskSpecHandle& Handle, float InSeconds);
+	static void AddHandleTimeWithSeconds(UPARAM(Ref)
+	                                     FDreamTaskSpecHandle& Handle, float InSeconds);
 
 	/**
 	 * 更新任务状态(通常每帧调用)
@@ -219,7 +234,8 @@ public:
 	 * @param DeltaTime 帧时间增量(秒)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Handles")
-	static void UpdateHandle(UPARAM(Ref) FDreamTaskSpecHandle& Handle, float DeltaTime);
+	static void UpdateHandle(UPARAM(Ref)
+	                         FDreamTaskSpecHandle& Handle, float DeltaTime);
 
 	/**
 	 * 比较两个任务句柄是否相等
@@ -300,12 +316,50 @@ public:
 
 public:
 	/**
+	 * 根据任务类型过滤容器中的任务句柄
+	 * @param Container [输入/输出] 要过滤的任务句柄容器（通过UPARAM(Ref)标记为引用参数，允许修改原容器）
+	 * @param InTaskType [输入] 过滤依据的任务类型指针（UDreamTaskType*类型）
+	 * @return 返回过滤后的任务句柄数组引用（TArray<FDreamTaskSpecHandle>&），可直接操作结果数组
+	 */
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
+	static TArray<FDreamTaskSpecHandle>& FilterContainerHandlesByTaskType(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		UDreamTaskType* InTaskType);
+
+	/**
+	 * 根据任务优先级过滤容器中的任务句柄  
+	 * @param Container [输入/输出] 要过滤的任务句柄容器（需非常量引用）
+	 * @param InPriority [输入] 过滤依据的任务优先级（EDreamTaskPriority枚举值）
+	 * @return 返回过滤后的任务句柄数组引用，包含所有匹配优先级的任务句柄
+	 */
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
+	static TArray<FDreamTaskSpecHandle>& FilterContainerHandlesByTaskPriority(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		EDreamTaskPriority InPriority);
+
+	/**
+	 * 根据任务状态过滤容器中的任务句柄
+	 * @param Container [输入/输出] 要过滤的任务句柄容器（通过引用直接修改）
+	 * @param InState [输入] 过滤依据的任务状态（EDreamTaskState枚举值）
+	 * @return 返回过滤后的任务句柄数组引用，包含所有匹配状态的任务句柄
+	 * @note 典型状态包括：未开始(NotStarted)、进行中(InProgress)、已完成(Completed)、已失败(Failed)等
+	 */
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
+	static TArray<FDreamTaskSpecHandle>& FilterContainerHandlesByTaskState(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		EDreamTaskState InState);
+
+	/**
 	 * 获取容器中所有的任务句柄
 	 * @param Container 任务句柄容器
 	 * @return 包含所有任务句柄的数组引用
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static TArray<FDreamTaskSpecHandle>& GetContainerHandles(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static TArray<FDreamTaskSpecHandle>& GetContainerHandles(UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 	/**
 	 * 向容器中添加新任务句柄
@@ -314,7 +368,10 @@ public:
 	 * @return 新添加的任务句柄引用
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static FDreamTaskSpecHandle& AddContainerHandle(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, FDreamTaskSpecHandle InHandle);
+	static FDreamTaskSpecHandle& AddContainerHandle(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		FDreamTaskSpecHandle InHandle);
 
 	/**
 	 * 从容器中移除指定任务句柄
@@ -323,7 +380,10 @@ public:
 	 * @return 是否成功移除
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static bool RemoveContainerHandle(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, const FDreamTaskSpecHandle& InHandle);
+	static bool RemoveContainerHandle(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		const FDreamTaskSpecHandle& InHandle);
 
 	/**
 	 * 根据任务对象查找对应的句柄
@@ -332,7 +392,10 @@ public:
 	 * @return 找到的任务句柄常量引用
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static const FDreamTaskSpecHandle& FindContainerHandleByClass(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, UDreamTask* InTask);
+	static const FDreamTaskSpecHandle& FindContainerHandleByClass(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		UDreamTask* InTask);
 
 	/**
 	 * 根据任务类查找对应的句柄
@@ -341,7 +404,10 @@ public:
 	 * @return 找到的任务句柄常量引用
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static const FDreamTaskSpecHandle& FindContainerHandleByTaskClass(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, TSubclassOf<UDreamTask> InClass);
+	static const FDreamTaskSpecHandle& FindContainerHandleByTaskClass(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		TSubclassOf<UDreamTask> InClass);
 
 	/**
 	 * 根据任务名称查找对应的句柄
@@ -350,7 +416,10 @@ public:
 	 * @return 找到的任务句柄常量引用
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static const FDreamTaskSpecHandle& FindContainerHandleByTaskName(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, FName InName);
+	static const FDreamTaskSpecHandle& FindContainerHandleByTaskName(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		FName InName);
 
 	/**
 	 * 查找指定句柄在容器中的索引位置
@@ -359,7 +428,10 @@ public:
 	 * @return 找到的索引位置，未找到返回-1
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static int32 FindContainerHandleIndex(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, const FDreamTaskSpecHandle& InHandle);
+	static int32 FindContainerHandleIndex(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		const FDreamTaskSpecHandle& InHandle);
 
 	/**
 	 * 清空容器中的所有任务句柄
@@ -367,7 +439,9 @@ public:
 	 * @param Container 要清空的容器
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static void ClearContainerHandles(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static void ClearContainerHandles(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 	/**
 	 * 设置容器中的任务句柄列表
@@ -376,7 +450,10 @@ public:
 	 * @return 设置的任务句柄数量
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static int SetContainerHandles(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, const TArray<FDreamTaskSpecHandle>& InHandles);
+	static int SetContainerHandles(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		const TArray<FDreamTaskSpecHandle>& InHandles);
 
 	/**
 	 * 构建包含容器中所有任务对象的数组
@@ -384,7 +461,9 @@ public:
 	 * @return 包含所有任务对象的数组
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static TArray<UDreamTask*> BuildContainerTaskArray(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static TArray<UDreamTask*> BuildContainerTaskArray(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 	/**
 	 * 更新容器中所有任务句柄的状态
@@ -392,7 +471,10 @@ public:
 	 * @param DeltaTime 帧时间增量
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static void UpdateContainerHandles(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container, float DeltaTime);
+	static void UpdateContainerHandles(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container,
+		float DeltaTime);
 
 	/**
 	 * 检查容器中所有任务是否都已完成
@@ -400,7 +482,9 @@ public:
 	 * @return 所有任务都已完成返回true，否则false
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static bool IsContainerAllCompleted(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static bool IsContainerAllCompleted(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 	/**
 	 * 检查容器中是否有部分任务已完成
@@ -408,7 +492,9 @@ public:
 	 * @return 有任务已完成返回true，否则false
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static bool IsContainerSomeCompleted(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static bool IsContainerSomeCompleted(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 	/**
 	 * 检查容器中是否没有任务已完成
@@ -416,7 +502,9 @@ public:
 	 * @return 没有任务已完成返回true，否则false
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static bool IsContainerNoCompleted(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static bool IsContainerNoCompleted(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 	/**
 	 * 检查容器是否为空
@@ -424,7 +512,9 @@ public:
 	 * @return 容器为空返回true，否则false
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static bool IsContainerEmpty(UPARAM(Ref) FDreamTaskSpecHandleContainer& Container);
+	static bool IsContainerEmpty(
+		UPARAM(Ref)
+		FDreamTaskSpecHandleContainer& Container);
 
 
 #pragma endregion HandleContainer
@@ -438,7 +528,10 @@ public:
 	 * @return 找到的条件模板指针，如果未找到则返回nullptr
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Condition")
-	static UDreamTaskConditionTemplate* GetConditionByName(UPARAM(Ref) FDreamTaskConditionContainer& Container, FName InConditionName);
+	static UDreamTaskConditionTemplate* GetConditionByName(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container,
+		FName InConditionName);
 
 	/**
 	 * 获取容器中所有的条件模板
@@ -446,7 +539,9 @@ public:
 	 * @return 包含所有条件模板的数组
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Condition")
-	static TArray<UDreamTaskConditionTemplate*> GetConditions(UPARAM(Ref) FDreamTaskConditionContainer& Container);
+	static TArray<UDreamTaskConditionTemplate*> GetConditions(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container);
 
 	/**
 	 * 获取容器中条件名称到条件模板的映射表
@@ -454,7 +549,9 @@ public:
 	 * @return 条件名称与条件模板的映射表引用
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Condition")
-	static TMap<FName, UDreamTaskConditionTemplate*>& GetConditionMapping(UPARAM(Ref) FDreamTaskConditionContainer& Container);
+	static TMap<FName, UDreamTaskConditionTemplate*>& GetConditionMapping(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container);
 
 	/**
 	 * 更新指定名称的条件状态
@@ -463,7 +560,10 @@ public:
 	 * @return 是否成功找到并更新了该条件
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Condition")
-	static bool UpdateConditionByName(UPARAM(Ref) FDreamTaskConditionContainer& Container, FName InConditionName);
+	static bool UpdateConditionByName(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container,
+		FName InConditionName);
 
 	/**
 	 * 统计容器中已完成的条件数量
@@ -471,7 +571,9 @@ public:
 	 * @return 已完成条件的数量
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Condition")
-	static int ConditionCompletedCount(UPARAM(Ref) FDreamTaskConditionContainer& Container);
+	static int ConditionCompletedCount(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container);
 
 	/**
 	 * 检查容器中的所有条件是否都已完成
@@ -479,14 +581,18 @@ public:
 	 * @return 如果所有条件都已完成则返回true，否则返回false
 	 */
 	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|Condition")
-	static bool IsConditionsCompleted(UPARAM(Ref) FDreamTaskConditionContainer& Container);
+	static bool IsConditionsCompleted(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container);
 
 	/**
 	 * 重置容器中的所有条件状态
 	 * @param Container 要重置的条件容器
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|Condition")
-	static void ResetConditionContainer(UPARAM(Ref) FDreamTaskConditionContainer& Container);
+	static void ResetConditionContainer(
+		UPARAM(Ref)
+		FDreamTaskConditionContainer& Container);
 
 
 #pragma endregion ConditionContainer

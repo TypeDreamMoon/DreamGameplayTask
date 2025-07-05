@@ -175,6 +175,10 @@ public:
 	 */
 	bool IsEmpty() const;
 
+	TArray<FDreamTaskSpecHandle>& Filter(UDreamTaskType* InType);
+	TArray<FDreamTaskSpecHandle>& Filter(EDreamTaskPriority InPriority);
+	TArray<FDreamTaskSpecHandle>& Filter(EDreamTaskState InState);
+	
 private:
 	/**
 	 * @brief 根据当前任务状态更新容器状态

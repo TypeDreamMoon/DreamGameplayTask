@@ -246,3 +246,34 @@ bool FDreamTaskSpecHandleContainer::IsEmpty() const
 {
 	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::Empty);
 }
+
+TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(UDreamTaskType* InType)
+{
+	TArray<FDreamTaskSpecHandle> Result;
+	Algo::CopyIf(GetHandles(), Result, [InType](const FDreamTaskSpecHandle& InHandle)
+	{
+		return InHandle == InType;
+	});
+
+	return Result;
+}
+
+TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(EDreamTaskPriority InPriority)
+{
+	TArray<FDreamTaskSpecHandle> Result;
+	Algo::CopyIf(GetHandles(), Result, [InPriority](const FDreamTaskSpecHandle& InHandle)
+	{
+		return InHandle == InPriority;
+	});
+	return Result;
+}
+
+TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(EDreamTaskState InState)
+{
+	TArray<FDreamTaskSpecHandle> Result;
+	Algo::CopyIf(GetHandles(), Result, [InState](const FDreamTaskSpecHandle& InHandle)
+	{
+		return InHandle == InState;
+	});
+	return Result;
+}

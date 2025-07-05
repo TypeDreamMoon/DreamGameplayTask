@@ -181,21 +181,20 @@ void FDreamTaskSpecHandle::Update(float DeltaTime)
 			TaskPtr->SetTaskState(EDreamTaskState::EDTS_Completed);
 			return;
 		}
-		
+
 		if (TaskPtr->bUseMaximumCompletionTime && IsTimeout())
 		{
 			TaskPtr->SetTaskState(EDreamTaskState::EDTS_Timeout);
 		}
-		
 	}
 }
 
 void FDreamTaskSpecHandle::Reset()
 {
 	RunningTime = FTimespan::Zero();
-	StartTime   = FDateTime::Now();
-	EndTime     = FDateTime();
-	
+	StartTime = FDateTime::Now();
+	EndTime = FDateTime();
+
 	if (UDreamTask* TaskPtr = Task.Get())
 	{
 		TaskPtr->DelegateCall_TaskReset();
@@ -213,7 +212,7 @@ bool FDreamTaskSpecHandle::operator==(const UDreamTask* Other) const
 	{
 		return false;
 	}
-	
+
 	if (UDreamTask* TaskPtr = Task.Get())
 	{
 		return TaskPtr == Other;
@@ -235,6 +234,29 @@ bool FDreamTaskSpecHandle::operator==(const TSubclassOf<UDreamTask>& Class) cons
 	if (UDreamTask* TaskPtr = Task.Get())
 	{
 		return TaskPtr->GetClass() == Class;
+	}
+	return false;
+}
+
+bool FDreamTaskSpecHandle::operator==(const UDreamTaskType* InTaskType) const
+{
+	if (UDreamTask* TaskPtr = Task.Get())
+	{
+		return TaskPtr->GetTaskType() == InTaskType;
+	}
+	return false;
+}
+
+bool FDreamTaskSpecHandle::operator==(EDreamTaskState InState) const
+{
+	return GetTaskState() == InState;
+}
+
+bool FDreamTaskSpecHandle::operator==(EDreamTaskPriority InPriority) const
+{
+	if (UDreamTask* TaskPtr = Task.Get())
+	{
+		return TaskPtr->GetTaskPriority() == InPriority;
 	}
 	return false;
 }

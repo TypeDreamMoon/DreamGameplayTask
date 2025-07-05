@@ -127,6 +127,13 @@ public:
 	EDreamTaskState GetTaskState() const { return TaskState; }
 
 	/**
+	 * 获取任务的优先级
+	 * @return EDreamTaskPriority 获取任务的优先级枚举值
+	 */
+	UFUNCTION(BlueprintPure, Category = Functions)
+	EDreamTaskPriority GetTaskPriority() const { return TaskPriority; }
+
+	/**
 	 * 获取任务所属的任务组件
 	 * @return UDreamTaskComponent* 返回拥有该任务的任务组件
 	 */

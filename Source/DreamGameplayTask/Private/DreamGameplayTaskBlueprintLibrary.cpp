@@ -110,6 +110,42 @@ TArray<UDreamTask*> UDreamGameplayTaskBlueprintLibrary::FilterTasksByState(const
 	return Result;
 }
 
+TArray<FDreamTaskSpecHandle> UDreamGameplayTaskBlueprintLibrary::FilterHandlesByType(TArray<FDreamTaskSpecHandle>& Handles, UDreamTaskType* TaskType)
+{
+	TArray<FDreamTaskSpecHandle> Result;
+	for (FDreamTaskSpecHandle& Handle : Handles)
+	{
+		if (Handle == TaskType)
+			Result.Add(Handle);
+	}
+
+	return Result;
+}
+
+TArray<FDreamTaskSpecHandle> UDreamGameplayTaskBlueprintLibrary::FilterHandlesByPriority(TArray<FDreamTaskSpecHandle>& Handles, EDreamTaskPriority Priority)
+{
+	TArray<FDreamTaskSpecHandle> Result;
+	for (FDreamTaskSpecHandle& Handle : Handles)
+	{
+		if (Handle.GetTask()->TaskPriority == Priority)
+			Result.Add(Handle);
+	}
+
+	return Result;
+}
+
+TArray<FDreamTaskSpecHandle> UDreamGameplayTaskBlueprintLibrary::FilterHandlesByState(TArray<FDreamTaskSpecHandle>& Handles, EDreamTaskState State)
+{
+	TArray<FDreamTaskSpecHandle> Result;
+	for (FDreamTaskSpecHandle& Handle : Handles)
+	{
+		if (Handle.GetTask()->TaskState == State)
+			Result.Add(Handle);
+	}
+
+	return Result;
+}
+
 UDreamTask* UDreamGameplayTaskBlueprintLibrary::GetHandleTask(const FDreamTaskSpecHandle& Handle)
 {
 	return Handle.GetTask();
@@ -253,6 +289,21 @@ bool UDreamGameplayTaskBlueprintLibrary::EqualEqual_TaskHandleTaskClass(const FD
 bool UDreamGameplayTaskBlueprintLibrary::NotEqual_TaskHandleTaskClass(const FDreamTaskSpecHandle& A, TSubclassOf<UDreamTask> B)
 {
 	return A != B;
+}
+
+TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskType(FDreamTaskSpecHandleContainer& Container, UDreamTaskType* InTaskType)
+{
+	return Container.Filter(InTaskType);
+}
+
+TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskPriority(FDreamTaskSpecHandleContainer& Container, EDreamTaskPriority InPriority)
+{
+	return Container.Filter(InPriority);
+}
+
+TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskState(FDreamTaskSpecHandleContainer& Container, EDreamTaskState InState)
+{
+	return Container.Filter(InState);
 }
 
 TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::GetContainerHandles(FDreamTaskSpecHandleContainer& Container)
