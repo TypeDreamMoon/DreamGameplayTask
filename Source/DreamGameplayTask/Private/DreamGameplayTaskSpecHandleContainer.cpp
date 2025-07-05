@@ -247,7 +247,7 @@ bool FDreamTaskSpecHandleContainer::IsEmpty() const
 	return EnumHasAnyFlags(ContainerState, EDreamTaskSpecHandleContainerState::Empty);
 }
 
-TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(UDreamTaskType* InType)
+TArray<FDreamTaskSpecHandle> FDreamTaskSpecHandleContainer::Filter(UDreamTaskType* InType)
 {
 	TArray<FDreamTaskSpecHandle> Result;
 	Algo::CopyIf(GetHandles(), Result, [InType](const FDreamTaskSpecHandle& InHandle)
@@ -258,7 +258,7 @@ TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(UDreamTaskTy
 	return Result;
 }
 
-TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(EDreamTaskPriority InPriority)
+TArray<FDreamTaskSpecHandle> FDreamTaskSpecHandleContainer::Filter(EDreamTaskPriority InPriority)
 {
 	TArray<FDreamTaskSpecHandle> Result;
 	Algo::CopyIf(GetHandles(), Result, [InPriority](const FDreamTaskSpecHandle& InHandle)
@@ -268,7 +268,7 @@ TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(EDreamTaskPr
 	return Result;
 }
 
-TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::Filter(EDreamTaskState InState)
+TArray<FDreamTaskSpecHandle> FDreamTaskSpecHandleContainer::Filter(EDreamTaskState InState)
 {
 	TArray<FDreamTaskSpecHandle> Result;
 	Algo::CopyIf(GetHandles(), Result, [InState](const FDreamTaskSpecHandle& InHandle)

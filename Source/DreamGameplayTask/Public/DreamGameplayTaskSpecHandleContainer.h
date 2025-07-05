@@ -3,6 +3,9 @@
 #include "CoreMinimal.h"
 #include "DreamGameplayTaskSpecHandleContainer.generated.h"
 
+class UDreamTaskType;
+enum class EDreamTaskPriority : uint8;
+enum class EDreamTaskState : uint8;
 class UDreamTask;
 
 UENUM(BlueprintType, Meta = (Bitflags))
@@ -175,9 +178,9 @@ public:
 	 */
 	bool IsEmpty() const;
 
-	TArray<FDreamTaskSpecHandle>& Filter(UDreamTaskType* InType);
-	TArray<FDreamTaskSpecHandle>& Filter(EDreamTaskPriority InPriority);
-	TArray<FDreamTaskSpecHandle>& Filter(EDreamTaskState InState);
+	TArray<FDreamTaskSpecHandle> Filter(UDreamTaskType* InType);
+	TArray<FDreamTaskSpecHandle> Filter(EDreamTaskPriority InPriority);
+	TArray<FDreamTaskSpecHandle> Filter(EDreamTaskState InState);
 	
 private:
 	/**

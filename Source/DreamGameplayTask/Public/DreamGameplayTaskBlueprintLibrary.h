@@ -322,7 +322,7 @@ public:
 	 * @return 返回过滤后的任务句柄数组引用（TArray<FDreamTaskSpecHandle>&），可直接操作结果数组
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static TArray<FDreamTaskSpecHandle>& FilterContainerHandlesByTaskType(
+	static TArray<FDreamTaskSpecHandle> FilterContainerHandlesByTaskType(
 		UPARAM(Ref)
 		FDreamTaskSpecHandleContainer& Container,
 		UDreamTaskType* InTaskType);
@@ -334,7 +334,7 @@ public:
 	 * @return 返回过滤后的任务句柄数组引用，包含所有匹配优先级的任务句柄
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static TArray<FDreamTaskSpecHandle>& FilterContainerHandlesByTaskPriority(
+	static TArray<FDreamTaskSpecHandle> FilterContainerHandlesByTaskPriority(
 		UPARAM(Ref)
 		FDreamTaskSpecHandleContainer& Container,
 		EDreamTaskPriority InPriority);
@@ -347,7 +347,7 @@ public:
 	 * @note 典型状态包括：未开始(NotStarted)、进行中(InProgress)、已完成(Completed)、已失败(Failed)等
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
-	static TArray<FDreamTaskSpecHandle>& FilterContainerHandlesByTaskState(
+	static TArray<FDreamTaskSpecHandle> FilterContainerHandlesByTaskState(
 		UPARAM(Ref)
 		FDreamTaskSpecHandleContainer& Container,
 		EDreamTaskState InState);

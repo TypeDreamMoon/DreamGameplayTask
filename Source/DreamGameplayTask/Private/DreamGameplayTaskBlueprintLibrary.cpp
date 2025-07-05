@@ -291,17 +291,17 @@ bool UDreamGameplayTaskBlueprintLibrary::NotEqual_TaskHandleTaskClass(const FDre
 	return A != B;
 }
 
-TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskType(FDreamTaskSpecHandleContainer& Container, UDreamTaskType* InTaskType)
+TArray<FDreamTaskSpecHandle> UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskType(FDreamTaskSpecHandleContainer& Container, UDreamTaskType* InTaskType)
 {
 	return Container.Filter(InTaskType);
 }
 
-TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskPriority(FDreamTaskSpecHandleContainer& Container, EDreamTaskPriority InPriority)
+TArray<FDreamTaskSpecHandle> UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskPriority(FDreamTaskSpecHandleContainer& Container, EDreamTaskPriority InPriority)
 {
 	return Container.Filter(InPriority);
 }
 
-TArray<FDreamTaskSpecHandle>& UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskState(FDreamTaskSpecHandleContainer& Container, EDreamTaskState InState)
+TArray<FDreamTaskSpecHandle> UDreamGameplayTaskBlueprintLibrary::FilterContainerHandlesByTaskState(FDreamTaskSpecHandleContainer& Container, EDreamTaskState InState)
 {
 	return Container.Filter(InState);
 }
