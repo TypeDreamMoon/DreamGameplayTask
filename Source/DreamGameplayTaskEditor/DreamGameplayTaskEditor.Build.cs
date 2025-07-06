@@ -11,7 +11,8 @@ public class DreamGameplayTaskEditor : ModuleRules
 			{
 				"Core",
 				"AssetRegistry",
-				"DreamGameplayTask",
+				"DreamGameplayTask", 
+				"ClassViewer",
 			}
 		);
 

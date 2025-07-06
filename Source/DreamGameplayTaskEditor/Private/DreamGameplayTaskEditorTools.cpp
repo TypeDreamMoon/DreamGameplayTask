@@ -15,91 +15,109 @@
 #include "Factories/DataAssetFactory.h"
 #include "Kismet2/KismetEditorUtilities.h"
 
-UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(UClass* Class, FString Name, EBlueprintType BlueprintType)
+UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(UClass* Class, EBlueprintType BlueprintType, bool bInCurrentPath, bool bOpenInEditor, FString Name)
 {
-	if (!FKismetEditorUtilities::CanCreateBlueprintOfClass(Class))
-	{
-		DGT_ED_FLOG(Error, TEXT("Can't create blueprint for class"));
-		return nullptr;
-	}
+	// 验证目标类是否支持创建 Blueprint
+    if (!FKismetEditorUtilities::CanCreateBlueprintOfClass(Class))
+    {
+        DGT_ED_FLOG(Error, TEXT("Cannot create blueprint for class %s"), *Class->GetName());
+        return nullptr;
+    }
 
-	// Pre-generate a unique asset name to fill out the path picker dialog with.
-	if (Name.Len() == 0)
-	{
-		Name = TEXT("NewBlueprint");
-	}
+    // 确定基础名称
+    const FString BaseName = Name.IsEmpty() ? TEXT("NewBlueprint") : Name;
 
-	// Load required modules
-	FModuleManager::LoadModuleChecked<IKismetCompilerInterface>("KismetCompiler");
-	FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+    // 加载模块
+    IKismetCompilerInterface& KismetCompiler = FModuleManager::LoadModuleChecked<IKismetCompilerInterface>("KismetCompiler");
+    FAssetToolsModule& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-	// Get classes needed for blueprint creation
-	UClass* BlueprintClass = nullptr;
-	UClass* BlueprintGeneratedClass = nullptr;
-	IKismetCompilerInterface& KismetCompilerModule = FModuleManager::GetModuleChecked<IKismetCompilerInterface>("KismetCompiler");
-	KismetCompilerModule.GetBlueprintTypesForClass(Class, BlueprintClass, BlueprintGeneratedClass);
+    // 获取 Blueprint 类型
+    UClass* BlueprintClass = nullptr;
+    UClass* GeneratedClass = nullptr;
+    KismetCompiler.GetBlueprintTypesForClass(Class, BlueprintClass, GeneratedClass);
 
-	// Generate initial package and asset names
-	FString CurrentPath;
-	UEditorUtilityLibrary::GetCurrentContentBrowserPath(CurrentPath);
-	FString PackageName = CurrentPath.Right(CurrentPath.Len() - 4) / Name;
-	FString UName;
-	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
-	AssetToolsModule.Get().CreateUniqueAssetName(PackageName, TEXT(""), PackageName, UName);
+    // 获取当前 Content Browser 路径，并构造包名
+    FString ContentPath;
+    UEditorUtilityLibrary::GetCurrentContentBrowserPath(ContentPath);
+    // 确保以 /Game 开头
+    if (!ContentPath.StartsWith(TEXT("/Game")))
+    {
+        ContentPath = TEXT("/Game") + ContentPath;
+    }
+    FString PackageName = ContentPath / BaseName;
+    FString UniqueName;
+    AssetTools.Get().CreateUniqueAssetName(PackageName, TEXT(""), PackageName, UniqueName);
 
-	UBlueprint* Blueprint = nullptr;
+    // 默认使用当前目录
+    FString FinalPackage = PackageName;
+    FName AssetName = *UniqueName;
 
+    // 如果不使用当前路径，则弹出对话框
+    if (!bInCurrentPath)
+    {
+        TSharedRef<SDlgPickAssetPath> PickAsset = SNew(SDlgPickAssetPath)
+            .Title(NSLOCTEXT("BlueprintCreator", "CreateNewAsset", "Create New Asset"))
+            .DefaultAssetPath(FText::FromString(PackageName));
 
-	// Show the asset path picker dialog
-	TSharedPtr<SDlgPickAssetPath> PickAssetPathWidget =
-		SNew(SDlgPickAssetPath)
-		.Title(FText::FromString(TEXT("Create New Asset")))
-		.DefaultAssetPath(FText::FromString(PackageName));
+        if (PickAsset->ShowModal() != EAppReturnType::Ok)
+        {
+            return nullptr;
+        }
 
-	if (EAppReturnType::Ok == PickAssetPathWidget->ShowModal())
-	{
-		// Get the full name of where we want to create the Blueprint
-		FString UserPackageName = PickAssetPathWidget->GetFullAssetPath().ToString();
-		FName BPName(*FPackageName::GetLongPackageAssetName(UserPackageName));
+        const FString SelectedPath = PickAsset->GetFullAssetPath().ToString();
+        FName SelectedName = FName(*FPackageName::GetLongPackageAssetName(SelectedPath));
+        if (!SelectedName.IsNone())
+        {
+            FinalPackage = SelectedPath;
+            AssetName = SelectedName;
+        }
+    }
 
-		// Check if the user inputted a valid asset name, if they did not, use the generated default name
-		if (BPName == NAME_None)
-		{
-			// Use the defaults that were already generated.
-			UserPackageName = PackageName;
-			BPName = *UName;
-		}
+    // 创建包
+    UPackage* Package = CreatePackage(*FinalPackage);
+    check(Package);
 
-		// Then find or create the package
-		UPackage* Package = CreatePackage(*UserPackageName);
-		check(Package);
+    // 创建 Blueprint
+    UBlueprint* Blueprint = FKismetEditorUtilities::CreateBlueprint(
+        Class,
+        Package,
+        AssetName,
+        BlueprintType,
+        BlueprintClass,
+        GeneratedClass,
+        FName("LevelEditorActions")
+    );
+    if (!Blueprint)
+    {
+        return nullptr;
+    }
 
-		// Create and initialize a new Blueprint
-		Blueprint = FKismetEditorUtilities::CreateBlueprint(Class, Package, BPName, BlueprintType, BlueprintClass, BlueprintGeneratedClass, FName("LevelEditorActions"));
-		if (Blueprint)
-		{
-			// Notify the asset registry
-			FAssetRegistryModule::AssetCreated(Blueprint);
+    // 注册并标记脏包
+    FAssetRegistryModule::AssetCreated(Blueprint);
+    Package->MarkPackageDirty();
+    DGT_ED_FLOG(Log, TEXT("Created Blueprint: %s"), *FinalPackage);
 
-			// Mark the package dirty
-			Package->MarkPackageDirty();
+    // 可选的 DreamTask 映射
+    if (Class->IsChildOf(UDreamTask::StaticClass()))
+    {
+        if (auto* Setting = UDreamGameplayTaskSetting::Get())
+        {
+            Setting->MakeTaskMapping(Blueprint->GeneratedClass->GetDefaultObject<UDreamTask>());
+        }
+    }
 
-			DGT_ED_FLOG(Log, TEXT("Create Blueprint %s"), *UserPackageName);
+    // 打开编辑器
+    if (GEditor && bOpenInEditor)
+    {
+        GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Blueprint);
+    }
 
-			if (Class->IsChildOf(UDreamTask::StaticClass()))
-			{
-				if (UDreamGameplayTaskSetting* Setting = UDreamGameplayTaskSetting::Get())
-				{
-					Setting->MakeTaskMapping(Blueprint->GeneratedClass->GetDefaultObject<UDreamTask>());
-				}
-			}
+    return Blueprint;
+}
 
-			GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Blueprint);
-			return Blueprint;
-		}
-	}
-
-	return nullptr;
+UBlueprint* FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(UClass* Class, FString Name, EBlueprintType BlueprintType, bool bInCurrentPath, bool bOpenInEditor)
+{
+	return CreateObjectBlueprintByClass(Class, BlueprintType, bInCurrentPath, bOpenInEditor, Name);
 }
 
 UObject* FDreamGameplayTaskEditorTools::CreateDataAssetByClass(TSubclassOf<UPrimaryDataAsset> Class, FString Name)

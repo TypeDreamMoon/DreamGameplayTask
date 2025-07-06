@@ -2,6 +2,7 @@
 
 #include "DreamGameplayTaskEditorSetting.h"
 #include "DreamGameplayTaskEditorTools.h"
+#include "Kismet2/SClassPickerDialog.h"
 #include "Manager/DreamTaskManager_Util.h"
 #include "Manager/Widgets/DreamTaskManageWidget_ItemRow.h"
 #include "Widgets/Layout/SWidgetSwitcher.h"
@@ -36,10 +37,24 @@ void SDreamTaskManagerPage_Manager::Construct(const FArguments& InArgs)
 				[
 					SNew(HB)
 
-					HSLOT("Create Task")
+					HSLOT()
 					.AutoWidth()
 					VA(VFILL)
 					HA(HRIGHT)
+					.Padding(2.f)
+					[
+						SNew(SButton)
+						.OnClicked_Raw(this, &SDreamTaskManagerPage_Manager::Action_MakeTaskInCurrentPath)
+						[
+							FDreamTaskManagerUtil::MakeIconAndTextWidget(LOCTEXT("CreateTaskInCurrentPathButton", "Create Task In Current"),
+							                                             GET_STYLE_BRUSH("CreateTaskIcon"))
+						]
+					]
+
+
+					HSLOT("Create Task")
+					.AutoWidth()
+					VA(VFILL)
 					.Padding(2.f)
 					[
 						SNew(SButton)
@@ -124,7 +139,7 @@ SDreamTaskManagerPage_Manager::~SDreamTaskManagerPage_Manager()
 
 void SDreamTaskManagerPage_Manager::Refresh()
 {
-	Clear();  // First, clear the previous state
+	Clear(); // First, clear the previous state
 
 	UClass* FindClass = UDreamTask::StaticClass();
 
@@ -148,7 +163,7 @@ void SDreamTaskManagerPage_Manager::Refresh()
 					FDreamTaskManagerRowDataPtr ItemPtr = MakeShared<FDreamTaskManagerRowData>(Task, Blueprint);
 					if (ItemPtr.IsValid())
 					{
-						List.Add(ItemPtr);  // Add new tasks to the list
+						List.Add(ItemPtr); // Add new tasks to the list
 					}
 				}
 			}
@@ -157,14 +172,14 @@ void SDreamTaskManagerPage_Manager::Refresh()
 
 	// Refresh the list after adding new items
 	ListView->RequestListRefresh();
-	Check();  // Make sure the correct page is displayed
+	Check(); // Make sure the correct page is displayed
 }
 
 void SDreamTaskManagerPage_Manager::Clear()
 {
-	List.Empty();  // Clear the task list
-	ListView->RequestListRefresh();  // Refresh the list to show an empty state
-	Check();  // Ensure the correct page is displayed (either list or error message)
+	List.Empty(); // Clear the task list
+	ListView->RequestListRefresh(); // Refresh the list to show an empty state
+	Check(); // Ensure the correct page is displayed (either list or error message)
 }
 
 void SDreamTaskManagerPage_Manager::Check()
@@ -192,6 +207,29 @@ FReply SDreamTaskManagerPage_Manager::Action_ForceLoadMemory()
 	return FReply::Handled();
 }
 
+FReply SDreamTaskManagerPage_Manager::Action_MakeTaskInCurrentPath()
+{
+	UClass* TaskClass = UDreamGameplayTaskEditorSetting::Get()->GetCreateTaskClass();
+	UClass* ChosenClass = UDreamGameplayTaskEditorSetting::Get()->GetCreateTaskClass();
+	FClassViewerInitializationOptions ClassPickerOption = FClassViewerInitializationOptions();
+	ClassPickerOption.Mode = EClassViewerMode::ClassPicker;
+	ClassPickerOption.DisplayMode = EClassViewerDisplayMode::ListView;
+	ClassPickerOption.bShowUnloadedBlueprints = true;
+	
+	TSharedRef<FDreamGameplayTaskManagerTaskClassFiler> Filter = MakeShareable(new FDreamGameplayTaskManagerTaskClassFiler);
+	ClassPickerOption.ClassFilters.Add(Filter);
+
+	Filter->DisallowedClassFlags = CLASS_Deprecated | CLASS_NewerVersionExists | CLASS_Abstract | CLASS_HideDropDown;
+	Filter->AllowedChildrenOfClasses.Add(TaskClass);
+
+	const FText TitleText= LOCTEXT("Pick Task Class", "Pick Task Class");
+	SClassPickerDialog::PickClass(TitleText, ClassPickerOption, ChosenClass, TaskClass);
+
+	FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(ChosenClass, BPTYPE_Normal, true, true);
+
+	return FReply::Handled();
+}
+
 FReply SDreamTaskManagerPage_Manager::Action_MakeTask()
 {
 	UClass* TaskClass = UDreamGameplayTaskEditorSetting::Get()->GetCreateTaskClass();
@@ -199,8 +237,6 @@ FReply SDreamTaskManagerPage_Manager::Action_MakeTask()
 	UBlueprint* Blueprint = FDreamGameplayTaskEditorTools::CreateObjectBlueprintByClass(TaskClass, FString("NewTask"));
 
 	if (!Blueprint) return FReply::Handled();
-
-	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Blueprint);
 
 	return FReply::Handled();
 }

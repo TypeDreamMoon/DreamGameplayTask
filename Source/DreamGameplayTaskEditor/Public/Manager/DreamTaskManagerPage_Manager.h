@@ -25,6 +25,7 @@ public:
 
 	FReply Action_Refresh();
 	FReply Action_ForceLoadMemory();
+	FReply Action_MakeTaskInCurrentPath();
 	FReply Action_MakeTask();
 
 	void ListerAssetRemoved(const FAssetData& Data);

@@ -1,6 +1,7 @@
 ﻿#include "Manager/Widgets/DreamTaskManagerDebugger_Detail.h"
 
 #include "DreamGameplayTaskEditorLog.h"
+#include "DreamGameplayTaskEditorTools.h"
 #include "Components/ListView.h"
 
 #include "Classes/DreamTaskComponent.h"
@@ -14,32 +15,6 @@
 #define LOCTEXT_NAMESPACE "DreamTaskManagerDebugger_Detail_SpecRow"
 
 #define CHECK_COMPONENT (Component.IsValid() && Component.Get()->IsValid() && Component.Get()->Get() != nullptr)
-
-class FDreamGameplayTaskManagerTaskClassFiler : public IClassViewerFilter
-{
-public:
-	/** All children of these classes will be included unless filtered out by another setting. */
-	TSet<const UClass*> AllowedChildrenOfClasses;
-
-	/** Disallowed class flags. */
-	EClassFlags DisallowedClassFlags = CLASS_None;
-
-	virtual bool IsClassAllowed(const FClassViewerInitializationOptions& InInitOptions, const UClass* InClass,
-	                            TSharedRef<FClassViewerFilterFuncs> InFilterFuncs) override
-	{
-		return !InClass->HasAnyClassFlags(DisallowedClassFlags)
-			&& InFilterFuncs->IfInChildOfClassesSet(AllowedChildrenOfClasses, InClass) != EFilterReturn::Failed;
-	}
-
-	virtual bool IsUnloadedClassAllowed(const FClassViewerInitializationOptions& InInitOptions,
-	                                    const TSharedRef<const IUnloadedBlueprintData> InUnloadedClassData,
-	                                    TSharedRef<FClassViewerFilterFuncs> InFilterFuncs) override
-	{
-		return !InUnloadedClassData->HasAnyClassFlags(DisallowedClassFlags)
-			&& InFilterFuncs->IfInChildOfClassesSet(AllowedChildrenOfClasses, InUnloadedClassData) !=
-			EFilterReturn::Failed;
-	}
-};
 
 void SDreamTaskManagerDebugger_Detail::Construct(const FArguments& InArgs)
 {
