@@ -160,6 +160,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = Functions)
 	UDreamTaskConditionTemplate* GetTaskCondition(FName ConditionName);
 
+	UFUNCTION(BlueprintPure, Category = Functions)
+	FDreamTaskConditionContainer& GetTaskConditionContainer()
+	{
+		return TaskCompletedCondition;
+	}
+
 	// ---------------- SubTask ---------------
 
 	// 获取子任务类
