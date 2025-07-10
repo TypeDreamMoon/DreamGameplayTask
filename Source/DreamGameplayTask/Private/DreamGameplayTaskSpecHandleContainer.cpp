@@ -13,16 +13,18 @@ TArray<FDreamTaskSpecHandle>& FDreamTaskSpecHandleContainer::GetHandles()
 	return Handles;
 }
 
-FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::AddHandle(FDreamTaskSpecHandle InHandle)
+FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::AddHandle(const FDreamTaskSpecHandle& InHandle)
 {
-	InHandle.StartTime = FDateTime::Now();
-	InHandle.Guid = FGuid::NewGuid();
+	FDreamTaskSpecHandle Handle = InHandle;
+	
+	Handle.StartTime = FDateTime::Now();
+	Handle.Guid = FGuid::NewGuid();
 
-	Handles.Add(InHandle);
+	Handles.Add(Handle);
 
 	ChangeContainerState();
 
-	return InHandle;
+	return Handle;
 }
 
 bool FDreamTaskSpecHandleContainer::RemoveHandle(const FDreamTaskSpecHandle& InHandle)

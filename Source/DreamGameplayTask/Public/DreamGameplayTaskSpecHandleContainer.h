@@ -68,7 +68,7 @@ public:
 	 * @return 返回添加后的任务句柄引用
 	 * @note 会自动初始化StartTime和Guid
 	 */
-	FDreamTaskSpecHandle& AddHandle(FDreamTaskSpecHandle InHandle);
+	FDreamTaskSpecHandle& AddHandle(const FDreamTaskSpecHandle& InHandle);
 
 	/**
 	 * @brief 从容器中移除指定任务句柄
