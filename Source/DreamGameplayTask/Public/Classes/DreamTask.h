@@ -56,6 +56,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Task)
 	TArray<TSubclassOf<UDreamTask>> SubTasks;
 
+	// 是否自动给子任务
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Task)
+	bool bCompletedAutoGiveSubTask = false;
+
 	// 相关的Actor
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Task)
 	TArray<TSubclassOf<AActor>> RelatedActorsClasses;

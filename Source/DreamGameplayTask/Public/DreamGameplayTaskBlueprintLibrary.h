@@ -470,7 +470,7 @@ public:
 	 * @param Container 要更新的容器
 	 * @param DeltaTime 帧时间增量
 	 */
-	UFUNCTION(BlueprintPure, Category = "DreamGameplayTaskFunctions|HandleContainer")
+	UFUNCTION(BlueprintCallable, Category = "DreamGameplayTaskFunctions|HandleContainer")
 	static void UpdateContainerHandles(
 		UPARAM(Ref)
 		FDreamTaskSpecHandleContainer& Container,

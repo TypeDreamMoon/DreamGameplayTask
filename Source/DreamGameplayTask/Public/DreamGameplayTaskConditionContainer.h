@@ -36,7 +36,7 @@ public:
 	 * 可编辑，蓝图可读写，支持实例化
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	TMap<FName, UDreamTaskConditionTemplate*> Conditions;
+	TMap<FName, UDreamTaskConditionTemplate*> Conditions = {};
 
 	/**
 	 * @brief 任务条件完成模式

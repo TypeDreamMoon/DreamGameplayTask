@@ -50,7 +50,7 @@ struct DREAMGAMEPLAYTASK_API FDreamTaskSpecHandleContainer
 private:
 	/** 存储所有任务句柄的数组 */
 	UPROPERTY()
-	TArray<FDreamTaskSpecHandle> Handles;
+	TArray<FDreamTaskSpecHandle> Handles = {};
 
 	/** 当前容器的状态 */
 	EDreamTaskSpecHandleContainerState ContainerState = EDreamTaskSpecHandleContainerState::Empty;

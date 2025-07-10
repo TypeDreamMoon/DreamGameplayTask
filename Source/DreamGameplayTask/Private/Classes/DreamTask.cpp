@@ -293,6 +293,13 @@ void UDreamTask::UpdateTaskState_Internal(EDreamTaskState NewState)
 			break;
 
 		case EDreamTaskState::EDTS_Completed:
+			if (bCompletedAutoGiveSubTask && OwnerComponent)
+			{
+				for (auto Element : SubTasks)
+				{
+					OwnerComponent->GiveTaskByClass(Element);
+				}
+			}
 			if (OwnerComponent && bUseMaximumCompletionTime)
 			{
 				OwnerComponent->TaskData.FindHandleMutable(this)->SetEndTime(FDateTime::Now());
