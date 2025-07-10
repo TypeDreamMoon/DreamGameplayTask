@@ -2,9 +2,9 @@
 
 ---
 
-## Developer : [DreamMoon](https://github.com/TypeDreamMoon) & [晓桀](https://github.com/kirito0000001)
+Support engine version : Unreal Engine `5.0` - `5.6`
 
-## Support engine version : 5.x (Need to build)
+Support Platform : `Windows` `Android` `Linux?` `Mac?`
 
 ---
 
@@ -14,11 +14,17 @@
 
 2. Conditional design
 
-3. Conditional stencil
+3. Conditional Template
 
 4. Task manager
 
 5. Save and load
+
+6. Runtime Debugger (Editor)
+
+7. Task Manager (Editor)
+
+8. Task `Running / Start / End` Time
 
 ---
 
@@ -32,7 +38,7 @@
 
 - Github : [TypeDreamMoon (DreamMoon) · GitHub](https://github.com/TypeDreamMoon)
 
-- Discord : [DreamMoonDev](https://discord.gg/MsuXwGpp)
+- Discord : [DreamMoonDev](https://discord.gg/RutF9duYvt)
 
 ---
 
@@ -46,4 +52,6 @@
 
 - [Bilibili](https://www.bilibili.com/video/BV1HzyeYnEDY)
 
+---
 
+Developer : [DreamMoon](https://github.com/TypeDreamMoon) & [晓桀](https://github.com/kirito0000001)
