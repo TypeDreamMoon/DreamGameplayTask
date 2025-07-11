@@ -53,7 +53,7 @@ public:
 	FName DebuggerVersion = FName(TEXT("1.0.0"));
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Config, Category = "Version")
-	FName PluginVersion = FName(TEXT("3.0.0"));
+	FName PluginVersion = FName(TEXT("3.0.1"));
 
 public:
 	TSubclassOf<UDreamTask> GetCreateTaskClass() const;

@@ -20,11 +20,11 @@ FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::AddHandle(const FDreamTaskS
 	Handle.StartTime = FDateTime::Now();
 	Handle.Guid = FGuid::NewGuid();
 
-	Handles.Add(Handle);
+	int32 AddedHandleIndex = Handles.Add(Handle);
 
 	ChangeContainerState();
 
-	return Handle;
+	return Handles[AddedHandleIndex];
 }
 
 bool FDreamTaskSpecHandleContainer::RemoveHandle(const FDreamTaskSpecHandle& InHandle)
