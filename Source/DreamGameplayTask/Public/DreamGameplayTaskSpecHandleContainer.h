@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/Class.h"
+#include "DreamGameplayTask/Public/Classes/DreamTask.h"
 #include "DreamGameplayTaskSpecHandleContainer.generated.h"
 
 class UDreamTaskType;
@@ -29,7 +31,7 @@ struct FDreamTaskSpecHandle;
  * 
  * 该结构体包含一个可编辑的FDreamTaskSpecHandle数组，并提供相关操作方法
  */
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Category = "DreamGameplayTask")
 struct DREAMGAMEPLAYTASK_API FDreamTaskSpecHandleContainer
 {
 	GENERATED_BODY()

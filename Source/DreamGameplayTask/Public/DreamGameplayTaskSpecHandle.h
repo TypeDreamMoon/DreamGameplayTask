@@ -86,29 +86,34 @@ public:
 	 */
 	static const FDreamTaskSpecHandle& InvalidHandle();
 
+	friend uint32 GetTypeHash(const FDreamTaskSpecHandle& Data)
+	{
+		return HashCombine(GetTypeHash(Data.Guid), GetTypeHash(Data.StartTime));
+	}
+
 public:
 	// 用于标记此Handle是否有效
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Task Handle Data")
 	FGuid Guid;
 
 	// 任务
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Task Handle Data")
 	TObjectPtr<UDreamTask> Task = nullptr;
 
 	// 拥有任务的组件
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Task Handle Data")
 	TObjectPtr<UDreamTaskComponent> OwnerComponent = nullptr;
 
 	// 任务开始时间
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Task Time Data")
 	FDateTime StartTime = 0.f;
 
 	// 任务运行时间
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Task Time Data")
 	FTimespan RunningTime = 0.f;
 
 	// 任务结束时间
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Task Time Data")
 	FDateTime EndTime = 0.f;
 
 public:

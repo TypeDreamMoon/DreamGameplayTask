@@ -23,7 +23,7 @@ class UDreamTaskConditionTemplate;
  * 
  * 该结构体用于存储和管理任务完成的条件，支持多种条件完成模式
  */
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Category = "DreamGameplayTask")
 struct DREAMGAMEPLAYTASK_API FDreamTaskConditionContainer
 {
 	GENERATED_BODY()
@@ -35,7 +35,7 @@ public:
 	 * 以FName为键，存储任务条件模板对象的指针
 	 * 可编辑，蓝图可读写，支持实例化
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, Category = "Condition")
 	TMap<FName, UDreamTaskConditionTemplate*> Conditions = {};
 
 	/**
@@ -44,7 +44,7 @@ public:
 	 * 定义任务条件的完成判定方式（全部完成/任意完成/自定义数量完成）
 	 * 可编辑，蓝图只读，归类为Condition类别
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Condition")
 	EDreamTaskConditionalCompletionMode CompletionMode = EDreamTaskConditionalCompletionMode::EDTCCM_All;
 
 	/**
@@ -54,7 +54,7 @@ public:
 	 * 可编辑，蓝图只读，归类为Condition类别
 	 * 仅在CompletionMode为EDTCCM_Custom时显示编辑控件
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Condition,
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Condition",
 		meta = (EditCondition = "CompletionMode == EDreamTaskConditionalCompletionMode::EDTCCM_Custom",
 			EditConditionHides))
 	int CustomConditionCount = 1;

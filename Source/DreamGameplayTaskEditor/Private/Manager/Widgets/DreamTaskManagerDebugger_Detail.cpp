@@ -5,7 +5,7 @@
 #include "Components/ListView.h"
 
 #include "Classes/DreamTaskComponent.h"
-#include "DreamGameplayTaskTypes.h"
+#include "DreamGameplayTask/Public/DreamTaskInclude.h"
 #include "Kismet2/SClassPickerDialog.h"
 #include "Manager/Widgets/DreamTaskManagerDebugger_Detail_SpecRow.h"
 #include "Manager/DreamTaskManager_Util.h"

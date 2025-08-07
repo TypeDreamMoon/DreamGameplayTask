@@ -1,5 +1,7 @@
 ﻿#include "DreamGameplayTaskSpecHandleContainer.h"
 
+#include "Algo/Copy.h"
+#include "UObject/Class.h"
 #include "Classes/DreamTask.h"
 #include "DreamGameplayTaskSpecHandle.h"
 
@@ -71,7 +73,7 @@ const FDreamTaskSpecHandle& FDreamTaskSpecHandleContainer::FindHandle(TSubclassO
 {
 	FDreamTaskSpecHandle* Handle = GetHandles().FindByPredicate([InClass](const FDreamTaskSpecHandle& InHandle)
 	{
-		return InClass == InHandle.GetTask()->GetClass();
+		return InClass == TSubclassOf<UDreamTask>(InHandle.GetTask()->GetClass());
 	});
 
 	return Handle ? *Handle : FDreamTaskSpecHandle::InvalidHandle();

@@ -4,28 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Engine/Texture2D.h"
 #include "DreamTaskData.generated.h"
+
+class UWorld;
 
 /**
  * Custom Task Data
  */
-UCLASS(EditInlineNew, Blueprintable)
+UCLASS(EditInlineNew, Blueprintable, Category = "Task Data")
 class DREAMGAMEPLAYTASK_API UDreamTaskData : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
+	// 任务图标
+	UPROPERTY(EditAnywhere, Category = "Task Assets")
 	TSoftObjectPtr<UTexture2D> TaskIcon;
 
-	UPROPERTY(EditAnywhere)
+	// 任务图片
+	UPROPERTY(EditAnywhere, Category = "Task Assets")
 	TSoftObjectPtr<UTexture2D> TaskImage;
 
 public:
-	UFUNCTION(BlueprintPure)
+	// 获取任务图标
+	UFUNCTION(BlueprintPure, Category = "Task Functions")
 	UTexture2D* GetTaskIcon() const;
 
-	UFUNCTION(BlueprintPure)
+	// 获取任务图片
+	UFUNCTION(BlueprintPure, Category = "Task Functions")
 	UTexture2D* GetTaskImage() const;
 
 public:

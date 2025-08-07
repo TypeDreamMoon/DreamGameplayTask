@@ -3,7 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DreamGameplayTaskTypes.h"
+#include "DreamGameplayTaskSpecHandleContainer.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
+#include "Engine/TimerHandle.h"
 #include "DreamTask.h"
 #include "Components/ActorComponent.h"
 #include "DreamTaskComponent.generated.h"
@@ -11,7 +14,7 @@
 /**
  * Dream Gameplay Task Manager Component
  */
-UCLASS(ClassGroup=(DreamPlugin), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(DreamPlugin), meta=(BlueprintSpawnableComponent), Category = "Task Management")
 class DREAMGAMEPLAYTASK_API UDreamTaskComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -34,31 +37,31 @@ public:
 
 public:
 	// 任务列表更新时
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
+	UPROPERTY(BlueprintAssignable, Category = "Delegates")
 	FTaskListDynamicMulticastDelegate OnTaskListChanged;
 
 	// 任务列表更新时 CPP
 	FTaskListDelegate OnTaskListChangedDelegate;
 	
 	// 任务更新时
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
+	UPROPERTY(BlueprintAssignable, Category = "Delegates")
 	FTaskDelegate OnTaskUpdate;
 
 	// 任务移除时
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
+	UPROPERTY(BlueprintAssignable, Category = "Delegates")
 	FTaskDelegate OnTaskRemoved;
 
 	// 任务重置时
-	UPROPERTY(BlueprintAssignable, Category = Delegates)
+	UPROPERTY(BlueprintAssignable, Category = "Delegates")
 	FTaskDelegate OnTaskReset;
 
 public:
 	// 任务列表
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Task Data")
 	FDreamTaskSpecHandleContainer TaskData;
 
 	// 定时器间隔
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Task Timer")
 	float TimerDeltaTime = 0.01f;
 
 public:
@@ -68,14 +71,14 @@ public:
 	 * @param InPayload 任务的载荷
 	 * @return 给予的任务
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions, meta=(DeterminesOutputType = InClass))
+	UFUNCTION(BlueprintCallable, Category = "Functions", meta=(DeterminesOutputType = InClass))
 	FDreamTaskSpecHandle GiveTaskByClass(TSubclassOf<UDreamTask> InClass, UObject* InPayload = nullptr);
 
 	/**
 	 * 初始化任务列表
 	 * @param NewList 新的任务列表
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void InitializeTaskList(FDreamTaskSpecHandleContainer NewList);
 
 	/**
@@ -83,7 +86,7 @@ public:
 	 * @param InCheckTaskClass 要检测的任务类别
 	 * @return 任务列表内是否有这个类
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	bool HasTaskByClass(TSubclassOf<UDreamTask> InCheckTaskClass);
 
 	/**
@@ -91,7 +94,7 @@ public:
 	 * @param InCheckTaskName 要检测的任务名称
 	 * @return 任务列表内是否有这个任务名称
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	bool HasTaskByName(FName InCheckTaskName);
 
 	/**
@@ -99,7 +102,7 @@ public:
 	 * @param InRemoveTaskClass 要移除的任务名称
 	 * @return 是否成功移除
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	bool RemoveTaskByClass(TSubclassOf<UDreamTask> InRemoveTaskClass);
 
 	/**
@@ -107,13 +110,13 @@ public:
 	 * @param InRemoveTaskName 要移除的任务名称
 	 * @return 是否成功移除
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	bool RemoveTaskByName(FName InRemoveTaskName);
 	
 	/**
 	 * 清空任务列表
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void ClearTasks();
 
 	/**
@@ -121,7 +124,7 @@ public:
 	 * @param TaskName 要更新的任务名称
 	 * @param InConditionNames 要更新的任务条件名称
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void UpdateTask(FName TaskName, const TArray<FName>& InConditionNames);
 
 	/**
@@ -129,14 +132,14 @@ public:
 	 * @param InClass 要更新的任务类
 	 * @param InConditionNames 要更新的任务条件名称
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void UpdateTaskByClass(TSubclassOf<UDreamTask> InClass, const TArray<FName>& InConditionNames);
 
 	/**
 	 * 获取任务列表
 	 * @return 任务列表
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	TArray<FDreamTaskSpecHandle>& GetTaskList() { return TaskData.GetHandles(); }
 
 	/**
@@ -144,7 +147,7 @@ public:
 	 * @param InTaskClass 要获取的任务类
 	 * @return 获取到的任务
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	const FDreamTaskSpecHandle& GetTaskByClass(TSubclassOf<UDreamTask> InTaskClass);
 
 	/**
@@ -152,42 +155,42 @@ public:
 	 * @param InTaskName 要获取的任务名称
 	 * @return 获取到的任务
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	const FDreamTaskSpecHandle& GetTaskByName(FName InTaskName);
 
 	/**
 	 * 重置任务 (Name)
 	 * @param InName 要重置的任务名称
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void ResetTaskByName(FName InName);
 
 	/**
 	 * 重置任务 (Class)
 	 * @param InClass 要重置的任务类
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void ResetTaskByClass(TSubclassOf<UDreamTask> InClass);
 
 	/**
 	 * 重置任务 (Task)
 	 * @param InTask 要重置的任务
 	 */
-	UFUNCTION(BlueprintCallable, Category = Functions)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void ResetTask(UDreamTask* InTask);
 
 	/**
 	 * 获取任务列表数据
 	 * @return 任务列表数据
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	FDreamTaskSpecHandleContainer& GetTaskData() { return TaskData; }
 
 	/**
 	 * 获取任务列表数据 (Array Task)
 	 * @return 获取到的任务列表数据
 	 */
-	UFUNCTION(BlueprintPure, Category = Functions)
+	UFUNCTION(BlueprintPure, Category = "Functions")
 	TArray<UDreamTask*> GetTaskArray();
 
 public:

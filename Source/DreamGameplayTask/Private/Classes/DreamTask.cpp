@@ -82,16 +82,22 @@ void UDreamTask::UpdateTaskByName(TArray<FName> ConditionNames)
 {
 	if (EnumHasAnyFlags(TaskState, (EDreamTaskState::EDTS_Accept | EDreamTaskState::EDTS_Going)))
 	{
-		for (auto Element : ConditionNames)
+		for (FName CondName : ConditionNames)
 		{
-			if (TaskCompletedCondition.UpdateConditionByName(Element))
+			if (TaskCompletedCondition.UpdateConditionByName(CondName))
 			{
-				DelegateCall_TaskUpdate(true);
-
-				for (auto RelatedActor : CachedRelatedActors)
+				for (AActor* RelatedActor : CachedRelatedActors)
 				{
-					Cast<IDreamTaskInterface>(RelatedActor)->Execute_TaskUpdate(RelatedActor, this);
+					if (!RelatedActor)
+						continue;
+
+					if (!RelatedActor->GetClass()->ImplementsInterface(UDreamTaskInterface::StaticClass()))
+						continue;
+
+					IDreamTaskInterface::Execute_TaskUpdate(RelatedActor, this);
 				}
+
+				DelegateCall_TaskUpdate(true);
 			}
 		}
 

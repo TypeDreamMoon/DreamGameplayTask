@@ -1,13 +1,13 @@
 ﻿#include "DreamGameplayTaskTypes.h"
 
 #include "DreamGameplayTaskBlueprintLibrary.h"
-#include "DreamGameplayTaskLog.h"
 #include "Classes/DreamTask.h"
-#include "Classes/DreamTaskConditionTemplate.h"
 
 FDreamTaskSaveSingle::FDreamTaskSaveSingle(const UDreamTask* Task)
 {
-	TaskGuid = UDreamGameplayTaskBlueprintLibrary::GetDreamTaskGuid(Task->StaticClass());
+	if (!Task) return;
+	
+	TaskGuid = UDreamGameplayTaskBlueprintLibrary::GetDreamTaskGuid(TSubclassOf<UDreamTask>(Task->GetClass()));
 	TaskProgress = Task->GetTaskConditionProgress();
 }
 

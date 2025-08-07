@@ -3,6 +3,8 @@
 
 #include "Classes/DreamTaskData.h"
 
+#include "Engine/World.h"
+
 UTexture2D* UDreamTaskData::GetTaskIcon() const
 {
 	return TaskIcon.LoadSynchronous();

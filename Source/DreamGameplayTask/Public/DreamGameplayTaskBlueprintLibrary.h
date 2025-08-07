@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "DreamGameplayTaskTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "UObject/Class.h"
+#include "DreamGameplayTask/Public/Classes/DreamTask.h"
+#include "DreamGameplayTask/Public/Classes/DreamTaskData.h"
 #include "DreamGameplayTaskBlueprintLibrary.generated.h"
 
 class UDreamTaskData;

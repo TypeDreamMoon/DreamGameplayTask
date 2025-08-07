@@ -3,13 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
-// Begin Types
-#include "DreamGameplayTaskSpecHandle.h"
-#include "DreamGameplayTaskSpecHandleContainer.h"
-#include "DreamGameplayTaskConditionContainer.h"
-// End Types
-
 #include "DreamGameplayTaskTypes.generated.h"
 
 class UDreamTaskConditionTemplate;
@@ -30,7 +23,7 @@ enum class EDreamTaskPriority : uint8
 
 
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Blueprintable, Category = "DreamGameplayTask")
 struct FDreamTaskSaveSingle
 {
 	GENERATED_BODY()
@@ -42,14 +35,14 @@ public:
 	FDreamTaskSaveSingle(const UDreamTask* Task);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save")
 	FGuid TaskGuid;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save")
 	TMap<FName, int32> TaskProgress;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Blueprintable, Category = "DreamGameplayTask")
 struct FDreamTaskSaveData
 {
 	GENERATED_BODY()
@@ -61,6 +54,6 @@ public:
 	FDreamTaskSaveData(const TArray<UDreamTask*>& InSaveArray);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save")
 	TArray<FDreamTaskSaveSingle> SaveData;
 };

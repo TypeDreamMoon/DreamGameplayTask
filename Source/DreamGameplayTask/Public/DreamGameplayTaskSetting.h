@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
+#include "Engine/Texture2D.h"
+#include "GameFramework/Actor.h"
+#include "UObject/Class.h"
+#include "DreamGameplayTask/Public/Classes/DreamTask.h"
 #include "DreamGameplayTaskSetting.generated.h"
 
 class UDreamTaskData;
@@ -27,16 +31,16 @@ public:
 	virtual FName GetSectionName() const override { return FName(TEXT("TaskPluginSetting")); }
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "TaskMapping")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "TaskMapping", Category = "Settings")
 	TMap<TSubclassOf<UDreamTask>, FGuid> TaskMapping;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "DebugTaskLifeTime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "DebugTaskLifeTime", Category = "Settings")
 	bool bDebugTaskLifeTime = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Debug")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Debug", Category = "Settings")
 	bool bEnableDebug = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Updater Debug")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Config, DisplayName = "Enable Updater Debug", Category = "Settings")
 	bool bEnableUpdaterDebug = false;
 
 public:

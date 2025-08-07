@@ -27,23 +27,23 @@ public:
 	 * 任务初始化
 	 * @param Task 当前初始化的任务
 	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "DreamTaskInterface|RelatedActor")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "DreamTaskInterface|Initialization")
 	void TaskInitialize(UDreamTask* Task);
-		virtual void TaskInitialize_Implementation(UDreamTask* Task);
+	virtual void TaskInitialize_Implementation(UDreamTask* Task);
 
 	/**
 	 * 任务更新
 	 * @param Task 当前更新的任务
 	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "DreamTaskInterface|RelatedActor")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "DreamTaskInterface|Update")
 	void TaskUpdate(UDreamTask* Task);
-		void TaskUpdate_Implementation(UDreamTask* Task);
+	void TaskUpdate_Implementation(UDreamTask* Task);
 
 	/**
 	 * 任务完成
 	 * @param Task 完成的任务
 	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "DreamTaskInterface|RelatedActor")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "DreamTaskInterface|Completion")
 	void TaskCompleted(UDreamTask* Task);
-		void TaskCompleted_Implementation(UDreamTask* Task);
+	void TaskCompleted_Implementation(UDreamTask* Task);
 };

@@ -51,5 +51,11 @@ public class DreamGameplayTask : ModuleRules
 				// ... add any modules that your module loads dynamically here ...
 			}
 		);
+		
+		PrivateIncludePaths.AddRange(
+			new string[]
+			{
+				"DreamGameplayTask/Public/Classes/"
+			});
 	}
 }

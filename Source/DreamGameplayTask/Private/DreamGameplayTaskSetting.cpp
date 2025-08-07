@@ -2,7 +2,7 @@
 
 
 #include "DreamGameplayTaskSetting.h"
-#include "Classes/DreamTask.h"
+#include "DreamTask.h"
 
 UDreamGameplayTaskSetting::UDreamGameplayTaskSetting(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer)
@@ -29,9 +29,9 @@ bool UDreamGameplayTaskSetting::MappingHasTask(TSubclassOf<UDreamTask> InTask)
 
 bool UDreamGameplayTaskSetting::MakeTaskMapping(UDreamTask* InTask)
 {
-	if (!MappingHasTask(InTask->GetClass()))
+	if (!MappingHasTask(TSubclassOf<UDreamTask>(InTask->GetClass())))
 	{
-		TaskMapping.Add(InTask->GetClass(), FGuid::NewGuid());
+		TaskMapping.Add(TSubclassOf<UDreamTask>(InTask->GetClass()), FGuid::NewGuid());
 		SaveConfig();
 		return true;
 	}
